@@ -22,18 +22,20 @@ export const createTicket = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
+    const insertPayload = {
+      reporter_id: userId,
+      department: data.department,
+      priority: data.priority,
+      building: data.building,
+      floor: data.floor || null,
+      room: data.room || null,
+      location_note: data.location_note || null,
+      description: data.description,
+    } as never;
+
     const { data: ticket, error } = await supabase
       .from("repair_tickets")
-      .insert({
-        reporter_id: userId,
-        department: data.department,
-        priority: data.priority,
-        building: data.building,
-        floor: data.floor || null,
-        room: data.room || null,
-        location_note: data.location_note || null,
-        description: data.description,
-      })
+      .insert(insertPayload)
       .select("id, ticket_code")
       .single();
 
