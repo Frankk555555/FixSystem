@@ -1,19 +1,12 @@
-import { Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Wrench, LogOut, LayoutDashboard, Plus, User } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
 export function AppHeader() {
   const navigate = useNavigate();
-  const router = useRouter();
-  const qc = useQueryClient();
 
-  async function handleSignOut() {
-    await qc.cancelQueries();
-    qc.clear();
-    await supabase.auth.signOut();
-    router.invalidate();
+  function handleSignOut() {
+    // โหมด mock: แค่พากลับไปหน้า auth
     navigate({ to: "/auth", replace: true });
   }
 

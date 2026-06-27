@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
 import { Plus, Clock, Wrench, CheckCircle2 } from "lucide-react";
-import { listMyTickets } from "@/lib/tickets.functions";
+import { mockTickets } from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,12 +12,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function DashboardPage() {
-  const fetchTickets = useServerFn(listMyTickets);
-  const qc = useQueryClient();
-  const { data: tickets } = useSuspenseQuery({
-    queryKey: ["my-tickets"],
-    queryFn: () => fetchTickets(),
-  });
+  const [, setTick] = useState(0);
+  const tickets = mockTickets;
 
   const counts = {
     pending: tickets.filter((t) => t.status === "pending" || t.status === "assigned").length,
@@ -31,7 +26,7 @@ function DashboardPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold">หน้าหลัก</h1>
-          <p className="mt-1 text-muted-foreground">ภาพรวมใบแจ้งซ่อมของคุณ</p>
+          <p className="mt-1 text-muted-foreground">ภาพรวมใบแจ้งซ่อมของคุณ (ข้อมูลตัวอย่าง)</p>
         </div>
         <Button asChild size="lg" className="shadow-elegant">
           <Link to="/tickets/new">
@@ -42,34 +37,15 @@ function DashboardPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard
-          icon={<Clock className="h-5 w-5" />}
-          label="รอดำเนินการ"
-          value={counts.pending}
-          tone="muted"
-        />
-        <StatCard
-          icon={<Wrench className="h-5 w-5" />}
-          label="กำลังดำเนินการ"
-          value={counts.inProgress}
-          tone="primary"
-        />
-        <StatCard
-          icon={<CheckCircle2 className="h-5 w-5" />}
-          label="เสร็จสิ้น"
-          value={counts.completed}
-          tone="success"
-        />
+        <StatCard icon={<Clock className="h-5 w-5" />} label="รอดำเนินการ" value={counts.pending} tone="muted" />
+        <StatCard icon={<Wrench className="h-5 w-5" />} label="กำลังดำเนินการ" value={counts.inProgress} tone="primary" />
+        <StatCard icon={<CheckCircle2 className="h-5 w-5" />} label="เสร็จสิ้น" value={counts.completed} tone="success" />
       </div>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>ใบแจ้งซ่อมของฉัน</CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => qc.invalidateQueries({ queryKey: ["my-tickets"] })}
-          >
+          <Button variant="ghost" size="sm" onClick={() => setTick((n) => n + 1)}>
             รีเฟรช
           </Button>
         </CardHeader>
@@ -96,9 +72,7 @@ function DashboardPage() {
                     >
                       <div className="space-y-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-mono text-sm font-semibold text-primary">
-                            {t.ticket_code}
-                          </span>
+                          <span className="font-mono text-sm font-semibold text-primary">{t.ticket_code}</span>
                           <Badge variant="outline">
                             {dept?.icon} {dept?.label}
                           </Badge>

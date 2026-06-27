@@ -1,18 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
-import { getTicket, confirmTicketCompleted } from "@/lib/tickets.functions";
+import { getMockTicket, markMockTicketCompleted, mockMediaByTicket } from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  getDepartmentMeta,
-  getStatusMeta,
-  getPriorityMeta,
-  STATUSES,
-} from "@/lib/repair-constants";
+import { getDepartmentMeta, getStatusMeta, getPriorityMeta, STATUSES } from "@/lib/repair-constants";
 
 export const Route = createFileRoute("/_authenticated/tickets/$ticketId")({
   component: TicketDetailPage,
@@ -20,30 +14,38 @@ export const Route = createFileRoute("/_authenticated/tickets/$ticketId")({
 
 function TicketDetailPage() {
   const { ticketId } = Route.useParams();
-  const fetcher = useServerFn(getTicket);
-  const completer = useServerFn(confirmTicketCompleted);
-  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const [, setTick] = useState(0);
 
-  const { data } = useSuspenseQuery({
-    queryKey: ["ticket", ticketId],
-    queryFn: () => fetcher({ data: { id: ticketId } }),
-  });
+  const ticket = getMockTicket(ticketId);
+  if (!ticket) {
+    return (
+      <div className="mx-auto max-w-3xl space-y-4">
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/dashboard">
+            <ArrowLeft className="h-4 w-4" />
+            กลับหน้าหลัก
+          </Link>
+        </Button>
+        <Card>
+          <CardContent className="py-10 text-center text-muted-foreground">ไม่พบใบแจ้งซ่อม</CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-  const ticket = data.ticket;
   const dept = getDepartmentMeta(ticket.department);
   const status = getStatusMeta(ticket.status);
   const prio = getPriorityMeta(ticket.priority);
   const currentIdx = STATUSES.findIndex((s) => s.value === ticket.status);
+  const media = mockMediaByTicket[ticket.id] ?? [];
 
-  const complete = useMutation({
-    mutationFn: () => completer({ data: { id: ticketId } }),
-    onSuccess: () => {
-      toast.success("ปิดงานเรียบร้อย ขอบคุณครับ");
-      qc.invalidateQueries({ queryKey: ["ticket", ticketId] });
-      qc.invalidateQueries({ queryKey: ["my-tickets"] });
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  function handleComplete() {
+    markMockTicketCompleted(ticket!.id);
+    toast.success("ปิดงานเรียบร้อย ขอบคุณครับ");
+    setTick((n) => n + 1);
+    setTimeout(() => navigate({ to: "/dashboard" }), 600);
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -116,12 +118,7 @@ function TicketDetailPage() {
           </ol>
 
           {ticket.status === "in_progress" && (
-            <Button
-              className="mt-6 w-full shadow-elegant"
-              size="lg"
-              onClick={() => complete.mutate()}
-              disabled={complete.isPending}
-            >
+            <Button className="mt-6 w-full shadow-elegant" size="lg" onClick={handleComplete}>
               <CheckCircle2 className="h-4 w-4" />
               ยืนยันงานเสร็จสิ้น
             </Button>
@@ -129,13 +126,13 @@ function TicketDetailPage() {
         </CardContent>
       </Card>
 
-      {data.media.length > 0 && (
+      {media.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>ไฟล์แนบ</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {data.media.map((m) =>
+            {media.map((m) =>
               m.url ? (
                 m.kind === "video" ? (
                   <video key={m.id} src={m.url} controls className="aspect-square w-full rounded-lg object-cover" />

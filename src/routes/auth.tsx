@@ -1,8 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Wrench, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -23,65 +22,14 @@ function AuthPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  // signin
-  const [siEmail, setSiEmail] = useState("");
-  const [siPassword, setSiPassword] = useState("");
-
-  // signup
-  const [suName, setSuName] = useState("");
-  const [suPhone, setSuPhone] = useState("");
-  const [suCode, setSuCode] = useState("");
-  const [suEmail, setSuEmail] = useState("");
-  const [suPassword, setSuPassword] = useState("");
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard", replace: true });
-    });
-  }, [navigate]);
-
-  async function handleSignIn(e: React.FormEvent) {
+  function handleMockAuth(e: React.FormEvent, msg: string) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: siEmail,
-      password: siPassword,
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message === "Invalid login credentials" ? "อีเมลหรือรหัสผ่านไม่ถูกต้อง" : error.message);
-      return;
-    }
-    toast.success("ยินดีต้อนรับ");
-    navigate({ to: "/dashboard", replace: true });
-  }
-
-  async function handleSignUp(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: suEmail,
-      password: suPassword,
-      options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
-        data: {
-          full_name: suName,
-          phone: suPhone,
-          person_code: suCode,
-        },
-      },
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(
-        error.message.includes("already")
-          ? "อีเมลนี้ถูกใช้แล้ว"
-          : error.message,
-      );
-      return;
-    }
-    toast.success("สมัครสมาชิกสำเร็จ! กำลังเข้าสู่ระบบ...");
-    navigate({ to: "/dashboard", replace: true });
+    setTimeout(() => {
+      setLoading(false);
+      toast.success(msg);
+      navigate({ to: "/dashboard", replace: true });
+    }, 300);
   }
 
   return (
@@ -92,7 +40,7 @@ function AuthPage() {
             <Wrench className="h-7 w-7" />
           </div>
           <h1 className="mt-4 text-2xl font-semibold">ระบบแจ้งซ่อมมหาวิทยาลัย</h1>
-          <p className="text-sm text-muted-foreground">เข้าสู่ระบบเพื่อเริ่มต้นใช้งาน</p>
+          <p className="text-sm text-muted-foreground">โหมดทดสอบ (mock) — กรอกอะไรก็เข้าได้</p>
         </div>
 
         <Card className="shadow-elegant">
@@ -104,28 +52,14 @@ function AuthPage() {
               </TabsList>
 
               <TabsContent value="signin" className="mt-6">
-                <form className="space-y-4" onSubmit={handleSignIn}>
+                <form className="space-y-4" onSubmit={(e) => handleMockAuth(e, "ยินดีต้อนรับ")}>
                   <div>
                     <Label>อีเมล</Label>
-                    <Input
-                      type="email"
-                      autoComplete="email"
-                      required
-                      className="mt-1"
-                      value={siEmail}
-                      onChange={(e) => setSiEmail(e.target.value)}
-                    />
+                    <Input type="email" required className="mt-1" defaultValue="demo@university.ac.th" />
                   </div>
                   <div>
                     <Label>รหัสผ่าน</Label>
-                    <Input
-                      type="password"
-                      autoComplete="current-password"
-                      required
-                      className="mt-1"
-                      value={siPassword}
-                      onChange={(e) => setSiPassword(e.target.value)}
-                    />
+                    <Input type="password" required className="mt-1" defaultValue="demo1234" />
                   </div>
                   <Button type="submit" className="w-full shadow-soft" disabled={loading}>
                     {loading && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -135,53 +69,28 @@ function AuthPage() {
               </TabsContent>
 
               <TabsContent value="signup" className="mt-6">
-                <form className="space-y-4" onSubmit={handleSignUp}>
+                <form className="space-y-4" onSubmit={(e) => handleMockAuth(e, "สมัครสมาชิกสำเร็จ!")}>
                   <div>
                     <Label>ชื่อ-นามสกุล</Label>
-                    <Input className="mt-1" required value={suName} onChange={(e) => setSuName(e.target.value)} />
+                    <Input className="mt-1" required />
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <Label>เบอร์โทรศัพท์</Label>
-                      <Input
-                        className="mt-1"
-                        required
-                        value={suPhone}
-                        onChange={(e) => setSuPhone(e.target.value)}
-                      />
+                      <Input className="mt-1" required />
                     </div>
                     <div>
                       <Label>รหัส นศ./บุคลากร</Label>
-                      <Input
-                        className="mt-1"
-                        required
-                        value={suCode}
-                        onChange={(e) => setSuCode(e.target.value)}
-                      />
+                      <Input className="mt-1" required />
                     </div>
                   </div>
                   <div>
                     <Label>อีเมล</Label>
-                    <Input
-                      type="email"
-                      autoComplete="email"
-                      required
-                      className="mt-1"
-                      value={suEmail}
-                      onChange={(e) => setSuEmail(e.target.value)}
-                    />
+                    <Input type="email" required className="mt-1" />
                   </div>
                   <div>
                     <Label>รหัสผ่าน</Label>
-                    <Input
-                      type="password"
-                      autoComplete="new-password"
-                      required
-                      minLength={6}
-                      className="mt-1"
-                      value={suPassword}
-                      onChange={(e) => setSuPassword(e.target.value)}
-                    />
+                    <Input type="password" required minLength={6} className="mt-1" />
                   </div>
                   <Button type="submit" className="w-full shadow-soft" disabled={loading}>
                     {loading && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -190,6 +99,14 @@ function AuthPage() {
                 </form>
               </TabsContent>
             </Tabs>
+
+            <Button
+              variant="ghost"
+              className="mt-4 w-full"
+              onClick={() => navigate({ to: "/dashboard", replace: true })}
+            >
+              ข้ามไปยังหน้าหลักเลย (mock)
+            </Button>
           </CardContent>
         </Card>
       </div>
