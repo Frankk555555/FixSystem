@@ -1,11 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { ImagePlus, X, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { createTicket } from "@/lib/tickets.functions";
+import { addMockTicket, mockMediaByTicket } from "@/lib/mock-data";
 import {
   BUILDINGS,
   DEPARTMENTS,
@@ -33,7 +30,6 @@ export const Route = createFileRoute("/_authenticated/tickets/new")({
 
 function NewTicketPage() {
   const navigate = useNavigate();
-  const submit = useServerFn(createTicket);
 
   const [department, setDepartment] = useState<DepartmentValue | "">("");
   const [priority, setPriority] = useState<PriorityValue>("normal");
@@ -43,42 +39,38 @@ function NewTicketPage() {
   const [locationNote, setLocationNote] = useState("");
   const [description, setDescription] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
-  const mutation = useMutation({
-    mutationFn: async () => {
-      if (!department) throw new Error("กรุณาเลือกแผนก");
-      if (!building) throw new Error("กรุณาเลือกอาคาร");
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error("กรุณาเข้าสู่ระบบใหม่");
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!department) return toast.error("กรุณาเลือกแผนก");
+    if (!building) return toast.error("กรุณาเลือกอาคาร");
+    if (description.trim().length < 5) return toast.error("อธิบายอาการอย่างน้อย 5 ตัวอักษร");
 
-      const mediaPaths: string[] = [];
-      for (const file of files) {
-        const ext = file.name.split(".").pop() ?? "bin";
-        const path = `${userData.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const { error } = await supabase.storage.from("repair-media").upload(path, file);
-        if (error) throw new Error(`อัปโหลดไฟล์ไม่สำเร็จ: ${error.message}`);
-        mediaPaths.push(path);
-      }
-
-      return submit({
-        data: {
-          department,
-          priority,
-          building,
-          floor: floor || null,
-          room: room || null,
-          location_note: locationNote || null,
-          description,
-          media_paths: mediaPaths,
-        },
+    setSubmitting(true);
+    setTimeout(() => {
+      const ticket = addMockTicket({
+        department,
+        priority,
+        building,
+        floor: floor || null,
+        room: room || null,
+        location_note: locationNote || null,
+        description,
       });
-    },
-    onSuccess: (res) => {
-      toast.success(`แจ้งซ่อมสำเร็จ! หมายเลข ${res.ticket_code}`);
-      navigate({ to: "/tickets/$ticketId", params: { ticketId: res.id } });
-    },
-    onError: (err: Error) => toast.error(err.message),
-  });
+      if (files.length > 0) {
+        mockMediaByTicket[ticket.id] = files.map((f, i) => ({
+          id: `${ticket.id}-${i}`,
+          file_path: f.name,
+          kind: f.type.startsWith("video") ? "video" : "image",
+          url: URL.createObjectURL(f),
+          created_at: new Date().toISOString(),
+        }));
+      }
+      toast.success(`แจ้งซ่อมสำเร็จ! หมายเลข ${ticket.ticket_code}`);
+      navigate({ to: "/tickets/$ticketId", params: { ticketId: ticket.id } });
+    }, 400);
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -87,13 +79,7 @@ function NewTicketPage() {
         <p className="mt-1 text-muted-foreground">กรอกรายละเอียดเพื่อส่งเรื่องให้แผนกช่างที่เกี่ยวข้อง</p>
       </div>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          mutation.mutate();
-        }}
-        className="space-y-6"
-      >
+      <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>เลือกแผนกช่าง</CardTitle>
@@ -241,8 +227,8 @@ function NewTicketPage() {
           <Button type="button" variant="outline" onClick={() => navigate({ to: "/dashboard" })}>
             ยกเลิก
           </Button>
-          <Button type="submit" size="lg" disabled={mutation.isPending} className="shadow-elegant">
-            {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+          <Button type="submit" size="lg" disabled={submitting} className="shadow-elegant">
+            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
             ส่งใบแจ้งซ่อม
           </Button>
         </div>
