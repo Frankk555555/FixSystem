@@ -133,9 +133,13 @@ export function getMockTicket(id: string) {
 }
 
 export function markMockTicketCompleted(id: string) {
+  updateMockTicketStatus(id, "completed");
+}
+
+export function updateMockTicketStatus(id: string, status: MockTicket["status"]) {
   const t = getMockTicket(id);
   if (t) {
-    t.status = "completed";
+    t.status = status;
     t.updated_at = new Date().toISOString();
   }
 }
