@@ -143,7 +143,6 @@ export function updateMockTicketStatus(id: string, status: MockTicket["status"])
     t.updated_at = new Date().toISOString();
   }
 }
-}
 
 export function updateMockProfile(input: { full_name: string; phone: string; person_code: string }) {
   mockProfile.full_name = input.full_name;
