@@ -1,13 +1,15 @@
-// โหมด mock: เก็บบทบาทปัจจุบันใน localStorage เพื่อสลับ User / Technician
+// โหมด mock: เก็บบทบาทปัจจุบันใน localStorage เพื่อสลับ User / Technician / Admin
 import { useEffect, useState } from "react";
 
-export type Role = "user" | "technician";
+export type Role = "user" | "technician" | "admin";
 const KEY = "mock-role";
 
 export function getRole(): Role {
   if (typeof window === "undefined") return "user";
   const v = window.localStorage.getItem(KEY);
-  return v === "technician" ? "technician" : "user";
+  if (v === "technician") return "technician";
+  if (v === "admin") return "admin";
+  return "user";
 }
 
 export function setRole(role: Role) {
