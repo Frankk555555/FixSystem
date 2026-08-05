@@ -1,0 +1,3 @@
+module.exports=[3363,a=>{"use strict";var b=a.i(7997),c=a.i(95936),d=a.i(38904);a.s(["default",0,function(){return(0,b.jsx)("div",{className:"flex min-h-screen flex-col items-center justify-center p-4 text-center",children:(0,b.jsxs)("div",{className:"mx-auto max-w-md space-y-4",children:[(0,b.jsx)("h2",{className:"text-4xl font-bold tracking-tight",children:"404"}),(0,b.jsx)("p",{className:"text-lg text-muted-foreground",children:"ไม่พบหน้าที่คุณต้องการ"}),(0,b.jsx)("div",{children:(0,b.jsx)(d.Button,{asChild:!0,children:(0,b.jsx)(c.default,{href:"/",children:"กลับสู่หน้าหลัก"})})})]})})}])},17537,function(a){a.n(a.i(3363))}];
+
+//# sourceMappingURL=src_app_not-found_tsx_1863-sq._.js.map

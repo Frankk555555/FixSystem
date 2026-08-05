@@ -1,34 +1,60 @@
-// โหมด mock: เก็บบทบาทปัจจุบันใน localStorage เพื่อสลับ User / Technician / Admin
-import { useEffect, useState } from "react";
+import type { Database } from "@/integrations/supabase/types";
 
-export type Role = "user" | "technician" | "admin";
-const KEY = "mock-role";
+export type AppRole = Database["public"]["Enums"]["app_role"];
+export type RepairDepartment = Database["public"]["Enums"]["repair_department"];
 
-export function getRole(): Role {
-  if (typeof window === "undefined") return "user";
-  const v = window.localStorage.getItem(KEY);
-  if (v === "technician") return "technician";
-  if (v === "admin") return "admin";
-  return "user";
+export type Role = "user" | "technician" | "admin" | AppRole;
+
+export interface RoleMeta {
+  role: AppRole;
+  label: string;
+  department: RepairDepartment | null;
+  departmentLabel?: string;
+  icon: string;
+  color: string;
 }
 
-export function setRole(role: Role) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(KEY, role);
-  window.dispatchEvent(new CustomEvent("mock-role-change", { detail: role }));
-}
+export const ROLE_DEFINITIONS: Record<AppRole, RoleMeta> = {
+  user: {
+    role: "user",
+    label: "ผู้ใช้งานทั่วไป (นักศึกษา/อาจารย์/บุคลากร)",
+    department: null,
+    icon: "👤",
+    color: "bg-blue-500",
+  },
+  technician_electric: {
+    role: "technician_electric",
+    label: "ช่างซ่อม - แผนกไฟฟ้า",
+    department: "electric",
+    departmentLabel: "แผนกไฟฟ้า (Electric)",
+    icon: "⚡",
+    color: "bg-amber-500",
+  },
+  technician_plumbing: {
+    role: "technician_plumbing",
+    label: "ช่างซ่อม - แผนกประปา",
+    department: "plumbing",
+    departmentLabel: "แผนกประปา (Plumbing)",
+    icon: "💧",
+    color: "bg-cyan-500",
+  },
+  technician_general: {
+    role: "technician_general",
+    label: "ช่างซ่อม - แผนกซ่อมสร้าง",
+    department: "general",
+    departmentLabel: "แผนกซ่อมสร้าง (General/Building)",
+    icon: "🔨",
+    color: "bg-emerald-500",
+  },
+  admin: {
+    role: "admin",
+    label: "ผู้ดูแลระบบ (Admin)",
+    department: null,
+    icon: "🛡️",
+    color: "bg-purple-600",
+  },
+};
 
-export function useRole(): [Role, (r: Role) => void] {
-  const [role, setLocal] = useState<Role>("user");
-  useEffect(() => {
-    setLocal(getRole());
-    const onChange = () => setLocal(getRole());
-    window.addEventListener("mock-role-change", onChange);
-    window.addEventListener("storage", onChange);
-    return () => {
-      window.removeEventListener("mock-role-change", onChange);
-      window.removeEventListener("storage", onChange);
-    };
-  }, []);
-  return [role, (r) => setRole(r)];
+export function getRoleMeta(role: AppRole): RoleMeta {
+  return ROLE_DEFINITIONS[role] || ROLE_DEFINITIONS.user;
 }

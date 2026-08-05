@@ -1,0 +1,12 @@
+{
+  "/(app)/admin/page": "app/(app)/admin/page.js",
+  "/(app)/dashboard/page": "app/(app)/dashboard/page.js",
+  "/(app)/profile/page": "app/(app)/profile/page.js",
+  "/(app)/technician/page": "app/(app)/technician/page.js",
+  "/(app)/tickets/[ticketId]/page": "app/(app)/tickets/[ticketId]/page.js",
+  "/(app)/tickets/new/page": "app/(app)/tickets/new/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/auth/page": "app/auth/page.js",
+  "/page": "app/page.js"
+}

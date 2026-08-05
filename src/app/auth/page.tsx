@@ -1,0 +1,455 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  Wrench,
+  Loader2,
+  Lock,
+  Mail,
+  User,
+  Phone,
+  CreditCard,
+  Zap,
+  Droplets,
+  Hammer,
+  ShieldCheck,
+  UserRound,
+  Sparkles,
+} from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useAuth, type AppRole } from "@/contexts/AuthContext";
+
+export default function AuthPage() {
+  const router = useRouter();
+  const { signIn, signUp, quickDemoLogin } = useAuth();
+
+  const [loading, setLoading] = useState(false);
+  const [demoRoleLoading, setDemoRoleLoading] = useState<AppRole | null>(null);
+
+  // Sign In Form State
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+
+  // Sign Up Form State
+  const [signupName, setSignupName] = useState("");
+  const [signupPhone, setSignupPhone] = useState("");
+  const [signupCode, setSignupCode] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
+  const [signupRole, setSignupRole] = useState<AppRole>("user");
+
+  function redirectByRole(role: AppRole) {
+    if (role.startsWith("technician_")) {
+      router.replace("/technician");
+    } else if (role === "admin") {
+      router.replace("/admin");
+    } else {
+      router.replace("/dashboard");
+    }
+  }
+
+  async function handleSignIn(e: React.FormEvent) {
+    e.preventDefault();
+    if (!loginEmail || !loginPassword) {
+      toast.error("กรุณากรอกอีเมลและรหัสผ่าน");
+      return;
+    }
+    setLoading(true);
+    const { error } = await signIn(loginEmail, loginPassword);
+    setLoading(false);
+
+    if (error) {
+      toast.error(`เข้าสู่ระบบไม่สำเร็จ: ${error.message}`);
+    } else {
+      toast.success("เข้าสู่ระบบสำเร็จ!");
+      router.replace("/dashboard");
+    }
+  }
+
+  async function handleSignUp(e: React.FormEvent) {
+    e.preventDefault();
+    if (!signupName || !signupPhone || !signupCode || !signupEmail || !signupPassword) {
+      toast.error("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+      return;
+    }
+
+    if (signupPassword.length < 6) {
+      toast.error("รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร");
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await signUp({
+      email: signupEmail,
+      password: signupPassword,
+      full_name: signupName,
+      phone: signupPhone,
+      person_code: signupCode,
+      role: signupRole,
+    });
+    setLoading(false);
+
+    if (error) {
+      toast.error(`สมัครสมาชิกไม่สำเร็จ: ${error.message}`);
+    } else {
+      toast.success("สมัครสมาชิกสำเร็จและเข้าสู่ระบบเรียบร้อย!");
+      redirectByRole(signupRole);
+    }
+  }
+
+  async function handleQuickLogin(role: AppRole) {
+    setDemoRoleLoading(role);
+    const { error } = await quickDemoLogin(role);
+    setDemoRoleLoading(null);
+
+    if (error) {
+      toast.error(`เข้าสู่ระบบด่วนไม่สำเร็จ: ${error.message}`);
+    } else {
+      toast.success(`เข้าสู่ระบบในฐานะ ${getRoleTitle(role)} เรียบร้อย`);
+      redirectByRole(role);
+    }
+  }
+
+  function getRoleTitle(role: AppRole): string {
+    switch (role) {
+      case "technician_electric":
+        return "ช่างซ่อม แผนกไฟฟ้า ⚡";
+      case "technician_plumbing":
+        return "ช่างซ่อม แผนกประปา 💧";
+      case "technician_general":
+        return "ช่างซ่อม แผนกซ่อมสร้าง 🔨";
+      case "admin":
+        return "ผู้ดูแลระบบ 🛡️";
+      case "user":
+      default:
+        return "ผู้ใช้งานทั่วไป 👤";
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-background via-muted/30 to-background px-4 py-12 flex flex-col justify-center items-center">
+      <div className="w-full max-w-xl space-y-6">
+        {/* Logo and System Title */}
+        <div className="text-center space-y-2">
+          <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
+            <Wrench className="h-8 w-8" />
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight">ระบบแจ้งซ่อมออนไลน์</h1>
+          <p className="text-sm text-muted-foreground">
+            มหาวิทยาลัย — เชื่อมต่อฐานข้อมูล Supabase Realtime
+          </p>
+        </div>
+
+        {/* Quick Demo Login Card */}
+        <Card className="border-primary/20 bg-card/60 backdrop-blur shadow-soft">
+          <CardHeader className="pb-3 pt-4">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2 text-primary">
+              <Sparkles className="h-4 w-4" />
+              เข้าสู่ระบบด่วน (Quick Demo Accounts)
+            </CardTitle>
+            <CardDescription className="text-xs">
+              คลิกเพื่อทดสอบระบบตาม Role ได้ทันทีโดยไม่ต้องพิมพ์รหัสผ่าน
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-2 sm:grid-cols-3 pt-0 pb-4">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-auto py-2 px-2.5 flex flex-col items-center gap-1 border-primary/20 hover:bg-primary/5 text-left"
+              onClick={() => handleQuickLogin("user")}
+              disabled={!!demoRoleLoading}
+            >
+              {demoRoleLoading === "user" ? (
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              ) : (
+                <UserRound className="h-4 w-4 text-primary" />
+              )}
+              <span className="text-xs font-semibold">1. ผู้ใช้งานทั่วไป</span>
+              <span className="text-[10px] text-muted-foreground">นักศึกษา/บุคลากร</span>
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-auto py-2 px-2.5 flex flex-col items-center gap-1 border-amber-500/30 hover:bg-amber-500/5 text-left"
+              onClick={() => handleQuickLogin("technician_electric")}
+              disabled={!!demoRoleLoading}
+            >
+              {demoRoleLoading === "technician_electric" ? (
+                <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
+              ) : (
+                <Zap className="h-4 w-4 text-amber-500" />
+              )}
+              <span className="text-xs font-semibold">2. ช่างไฟฟ้า ⚡</span>
+              <span className="text-[10px] text-muted-foreground">แผนกไฟฟ้า</span>
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-auto py-2 px-2.5 flex flex-col items-center gap-1 border-cyan-500/30 hover:bg-cyan-500/5 text-left"
+              onClick={() => handleQuickLogin("technician_plumbing")}
+              disabled={!!demoRoleLoading}
+            >
+              {demoRoleLoading === "technician_plumbing" ? (
+                <Loader2 className="h-4 w-4 animate-spin text-cyan-500" />
+              ) : (
+                <Droplets className="h-4 w-4 text-cyan-500" />
+              )}
+              <span className="text-xs font-semibold">3. ช่างประปา 💧</span>
+              <span className="text-[10px] text-muted-foreground">แผนกประปา</span>
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-auto py-2 px-2.5 flex flex-col items-center gap-1 border-emerald-500/30 hover:bg-emerald-500/5 text-left"
+              onClick={() => handleQuickLogin("technician_general")}
+              disabled={!!demoRoleLoading}
+            >
+              {demoRoleLoading === "technician_general" ? (
+                <Loader2 className="h-4 w-4 animate-spin text-emerald-500" />
+              ) : (
+                <Hammer className="h-4 w-4 text-emerald-500" />
+              )}
+              <span className="text-xs font-semibold">4. ช่างซ่อมสร้าง 🔨</span>
+              <span className="text-[10px] text-muted-foreground">แผนกซ่อมสร้าง</span>
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="col-span-2 sm:col-span-2 h-auto py-2 px-2.5 flex flex-col items-center gap-1 border-purple-500/30 hover:bg-purple-500/5 text-left"
+              onClick={() => handleQuickLogin("admin")}
+              disabled={!!demoRoleLoading}
+            >
+              {demoRoleLoading === "admin" ? (
+                <Loader2 className="h-4 w-4 animate-spin text-purple-500" />
+              ) : (
+                <ShieldCheck className="h-4 w-4 text-purple-500" />
+              )}
+              <span className="text-xs font-semibold">5. ผู้ดูแลระบบ (Admin) 🛡️</span>
+              <span className="text-[10px] text-muted-foreground">ดูภาพรวมทุกแผนก & รายงานสถิติ</span>
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Main Auth Form */}
+        <Card className="shadow-elegant border-border/80">
+          <CardContent className="p-6">
+            <Tabs defaultValue="signin">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="signin" className="font-semibold">เข้าสู่ระบบ</TabsTrigger>
+                <TabsTrigger value="signup" className="font-semibold">สมัครสมาชิกใหม่</TabsTrigger>
+              </TabsList>
+
+              {/* TAB 1: Sign In */}
+              <TabsContent value="signin" className="space-y-4">
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signin-email">อีเมล</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signin-email"
+                        type="email"
+                        placeholder="user@demo.ac.th หรืออีเมลของคุณ"
+                        required
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signin-password">รหัสผ่าน</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signin-password"
+                        type="password"
+                        placeholder="••••••••"
+                        required
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                  </div>
+
+                  <Button type="submit" className="w-full shadow-soft" size="lg" disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    เข้าสู่ระบบ
+                  </Button>
+                </form>
+              </TabsContent>
+
+              {/* TAB 2: Sign Up */}
+              <TabsContent value="signup" className="space-y-4">
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signup-name">ชื่อ-นามสกุล *</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signup-name"
+                        placeholder="สมชาย ใจดี"
+                        required
+                        value={signupName}
+                        onChange={(e) => setSignupName(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="signup-phone">เบอร์โทรศัพท์ *</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="signup-phone"
+                          placeholder="081-234-5678"
+                          required
+                          value={signupPhone}
+                          onChange={(e) => setSignupPhone(e.target.value)}
+                          className="pl-9"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="signup-code">รหัส นศ./บุคลากร *</Label>
+                      <div className="relative">
+                        <CreditCard className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="signup-code"
+                          placeholder="65010001 / EMP-01"
+                          required
+                          value={signupCode}
+                          onChange={(e) => setSignupCode(e.target.value)}
+                          className="pl-9"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signup-email">อีเมล *</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signup-email"
+                        type="email"
+                        placeholder="yourname@university.ac.th"
+                        required
+                        value={signupEmail}
+                        onChange={(e) => setSignupEmail(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signup-pass">รหัสผ่าน *</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signup-pass"
+                        type="password"
+                        placeholder="อย่างน้อย 6 ตัวอักษร"
+                        required
+                        minLength={6}
+                        value={signupPassword}
+                        onChange={(e) => setSignupPassword(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Role Selection */}
+                  <div className="space-y-2 pt-1">
+                    <Label className="text-sm font-semibold">ประเภทผู้ใช้งาน / สิทธิ์ของบัญชี *</Label>
+                    <RadioGroup
+                      value={signupRole}
+                      onValueChange={(val) => setSignupRole(val as AppRole)}
+                      className="space-y-2"
+                    >
+                      <div className="flex items-center space-x-3 rounded-lg border p-2.5 transition hover:bg-muted/40 cursor-pointer">
+                        <RadioGroupItem value="user" id="role-user" />
+                        <Label htmlFor="role-user" className="flex-1 cursor-pointer flex items-center justify-between">
+                          <span className="flex items-center gap-2">
+                            <UserRound className="h-4 w-4 text-blue-500" />
+                            <span>ผู้ใช้งานทั่วไป (นักศึกษา / อาจารย์ / บุคลากร)</span>
+                          </span>
+                        </Label>
+                      </div>
+
+                      <div className="flex items-center space-x-3 rounded-lg border border-amber-500/30 p-2.5 transition hover:bg-amber-500/5 cursor-pointer">
+                        <RadioGroupItem value="technician_electric" id="role-electric" />
+                        <Label htmlFor="role-electric" className="flex-1 cursor-pointer flex items-center justify-between">
+                          <span className="flex items-center gap-2">
+                            <Zap className="h-4 w-4 text-amber-500" />
+                            <span>ช่างซ่อม — แผนกไฟฟ้า (Electric) ⚡</span>
+                          </span>
+                        </Label>
+                      </div>
+
+                      <div className="flex items-center space-x-3 rounded-lg border border-cyan-500/30 p-2.5 transition hover:bg-cyan-500/5 cursor-pointer">
+                        <RadioGroupItem value="technician_plumbing" id="role-plumbing" />
+                        <Label htmlFor="role-plumbing" className="flex-1 cursor-pointer flex items-center justify-between">
+                          <span className="flex items-center gap-2">
+                            <Droplets className="h-4 w-4 text-cyan-500" />
+                            <span>ช่างซ่อม — แผนกประปา (Plumbing) 💧</span>
+                          </span>
+                        </Label>
+                      </div>
+
+                      <div className="flex items-center space-x-3 rounded-lg border border-emerald-500/30 p-2.5 transition hover:bg-emerald-500/5 cursor-pointer">
+                        <RadioGroupItem value="technician_general" id="role-general" />
+                        <Label htmlFor="role-general" className="flex-1 cursor-pointer flex items-center justify-between">
+                          <span className="flex items-center gap-2">
+                            <Hammer className="h-4 w-4 text-emerald-500" />
+                            <span>ช่างซ่อม — แผนกซ่อมสร้าง (Building/General) 🔨</span>
+                          </span>
+                        </Label>
+                      </div>
+
+                      <div className="flex items-center space-x-3 rounded-lg border border-purple-500/30 p-2.5 transition hover:bg-purple-500/5 cursor-pointer">
+                        <RadioGroupItem value="admin" id="role-admin" />
+                        <Label htmlFor="role-admin" className="flex-1 cursor-pointer flex items-center justify-between">
+                          <span className="flex items-center gap-2">
+                            <ShieldCheck className="h-4 w-4 text-purple-500" />
+                            <span>ผู้ดูแลระบบ (Administrator) 🛡️</span>
+                          </span>
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <Button type="submit" className="w-full shadow-soft" size="lg" disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    สมัครสมาชิก
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
