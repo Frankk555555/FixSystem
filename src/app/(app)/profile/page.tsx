@@ -136,7 +136,7 @@ export default function ProfilePage() {
                   className="pl-9"
                   value={personCode}
                   onChange={(e) => setPersonCode(e.target.value)}
-                  placeholder="เช่น 65010001 หรือ EMP-001"
+                  placeholder="เช่น 66011213019"
                   required
                 />
               </div>

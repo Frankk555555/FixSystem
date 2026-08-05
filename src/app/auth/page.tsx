@@ -16,9 +16,8 @@ import {
   Hammer,
   ShieldCheck,
   UserRound,
-  Sparkles,
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -28,10 +27,9 @@ import { useAuth, type AppRole } from "@/contexts/AuthContext";
 
 export default function AuthPage() {
   const router = useRouter();
-  const { signIn, signUp, quickDemoLogin } = useAuth();
+  const { signIn, signUp } = useAuth();
 
   const [loading, setLoading] = useState(false);
-  const [demoRoleLoading, setDemoRoleLoading] = useState<AppRole | null>(null);
 
   // Sign In Form State
   const [loginEmail, setLoginEmail] = useState("");
@@ -62,14 +60,14 @@ export default function AuthPage() {
       return;
     }
     setLoading(true);
-    const { error } = await signIn(loginEmail, loginPassword);
+    const { error, role } = await signIn(loginEmail, loginPassword);
     setLoading(false);
 
     if (error) {
       toast.error(`เข้าสู่ระบบไม่สำเร็จ: ${error.message}`);
     } else {
       toast.success("เข้าสู่ระบบสำเร็จ!");
-      router.replace("/dashboard");
+      redirectByRole(role || "user");
     }
   }
 
@@ -104,35 +102,6 @@ export default function AuthPage() {
     }
   }
 
-  async function handleQuickLogin(role: AppRole) {
-    setDemoRoleLoading(role);
-    const { error } = await quickDemoLogin(role);
-    setDemoRoleLoading(null);
-
-    if (error) {
-      toast.error(`เข้าสู่ระบบด่วนไม่สำเร็จ: ${error.message}`);
-    } else {
-      toast.success(`เข้าสู่ระบบในฐานะ ${getRoleTitle(role)} เรียบร้อย`);
-      redirectByRole(role);
-    }
-  }
-
-  function getRoleTitle(role: AppRole): string {
-    switch (role) {
-      case "technician_electric":
-        return "ช่างซ่อม แผนกไฟฟ้า ⚡";
-      case "technician_plumbing":
-        return "ช่างซ่อม แผนกประปา 💧";
-      case "technician_general":
-        return "ช่างซ่อม แผนกซ่อมสร้าง 🔨";
-      case "admin":
-        return "ผู้ดูแลระบบ 🛡️";
-      case "user":
-      default:
-        return "ผู้ใช้งานทั่วไป 👤";
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-muted/30 to-background px-4 py-12 flex flex-col justify-center items-center">
       <div className="w-full max-w-xl space-y-6">
@@ -143,108 +112,9 @@ export default function AuthPage() {
           </div>
           <h1 className="text-3xl font-bold tracking-tight">ระบบแจ้งซ่อมออนไลน์</h1>
           <p className="text-sm text-muted-foreground">
-            มหาวิทยาลัย — เชื่อมต่อฐานข้อมูล Supabase Realtime
+            มหาวิทยาลัยราชภัฏบุรีรัมย์
           </p>
         </div>
-
-        {/* Quick Demo Login Card */}
-        <Card className="border-primary/20 bg-card/60 backdrop-blur shadow-soft">
-          <CardHeader className="pb-3 pt-4">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2 text-primary">
-              <Sparkles className="h-4 w-4" />
-              เข้าสู่ระบบด่วน (Quick Demo Accounts)
-            </CardTitle>
-            <CardDescription className="text-xs">
-              คลิกเพื่อทดสอบระบบตาม Role ได้ทันทีโดยไม่ต้องพิมพ์รหัสผ่าน
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-2 sm:grid-cols-3 pt-0 pb-4">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-auto py-2 px-2.5 flex flex-col items-center gap-1 border-primary/20 hover:bg-primary/5 text-left"
-              onClick={() => handleQuickLogin("user")}
-              disabled={!!demoRoleLoading}
-            >
-              {demoRoleLoading === "user" ? (
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              ) : (
-                <UserRound className="h-4 w-4 text-primary" />
-              )}
-              <span className="text-xs font-semibold">1. ผู้ใช้งานทั่วไป</span>
-              <span className="text-[10px] text-muted-foreground">นักศึกษา/บุคลากร</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-auto py-2 px-2.5 flex flex-col items-center gap-1 border-amber-500/30 hover:bg-amber-500/5 text-left"
-              onClick={() => handleQuickLogin("technician_electric")}
-              disabled={!!demoRoleLoading}
-            >
-              {demoRoleLoading === "technician_electric" ? (
-                <Loader2 className="h-4 w-4 animate-spin text-amber-500" />
-              ) : (
-                <Zap className="h-4 w-4 text-amber-500" />
-              )}
-              <span className="text-xs font-semibold">2. ช่างไฟฟ้า ⚡</span>
-              <span className="text-[10px] text-muted-foreground">แผนกไฟฟ้า</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-auto py-2 px-2.5 flex flex-col items-center gap-1 border-cyan-500/30 hover:bg-cyan-500/5 text-left"
-              onClick={() => handleQuickLogin("technician_plumbing")}
-              disabled={!!demoRoleLoading}
-            >
-              {demoRoleLoading === "technician_plumbing" ? (
-                <Loader2 className="h-4 w-4 animate-spin text-cyan-500" />
-              ) : (
-                <Droplets className="h-4 w-4 text-cyan-500" />
-              )}
-              <span className="text-xs font-semibold">3. ช่างประปา 💧</span>
-              <span className="text-[10px] text-muted-foreground">แผนกประปา</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-auto py-2 px-2.5 flex flex-col items-center gap-1 border-emerald-500/30 hover:bg-emerald-500/5 text-left"
-              onClick={() => handleQuickLogin("technician_general")}
-              disabled={!!demoRoleLoading}
-            >
-              {demoRoleLoading === "technician_general" ? (
-                <Loader2 className="h-4 w-4 animate-spin text-emerald-500" />
-              ) : (
-                <Hammer className="h-4 w-4 text-emerald-500" />
-              )}
-              <span className="text-xs font-semibold">4. ช่างซ่อมสร้าง 🔨</span>
-              <span className="text-[10px] text-muted-foreground">แผนกซ่อมสร้าง</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="col-span-2 sm:col-span-2 h-auto py-2 px-2.5 flex flex-col items-center gap-1 border-purple-500/30 hover:bg-purple-500/5 text-left"
-              onClick={() => handleQuickLogin("admin")}
-              disabled={!!demoRoleLoading}
-            >
-              {demoRoleLoading === "admin" ? (
-                <Loader2 className="h-4 w-4 animate-spin text-purple-500" />
-              ) : (
-                <ShieldCheck className="h-4 w-4 text-purple-500" />
-              )}
-              <span className="text-xs font-semibold">5. ผู้ดูแลระบบ (Admin) 🛡️</span>
-              <span className="text-[10px] text-muted-foreground">ดูภาพรวมทุกแผนก & รายงานสถิติ</span>
-            </Button>
-          </CardContent>
-        </Card>
 
         {/* Main Auth Form */}
         <Card className="shadow-elegant border-border/80">
@@ -265,7 +135,7 @@ export default function AuthPage() {
                       <Input
                         id="signin-email"
                         type="email"
-                        placeholder="user@demo.ac.th หรืออีเมลของคุณ"
+                        placeholder="user@bru.ac.th" 
                         required
                         value={loginEmail}
                         onChange={(e) => setLoginEmail(e.target.value)}
@@ -337,7 +207,7 @@ export default function AuthPage() {
                         <CreditCard className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="signup-code"
-                          placeholder="65010001 / EMP-01"
+                          placeholder="66011213019"
                           required
                           value={signupCode}
                           onChange={(e) => setSignupCode(e.target.value)}
@@ -354,7 +224,7 @@ export default function AuthPage() {
                       <Input
                         id="signup-email"
                         type="email"
-                        placeholder="yourname@university.ac.th"
+                        placeholder="user@bru.ac.th"
                         required
                         value={signupEmail}
                         onChange={(e) => setSignupEmail(e.target.value)}

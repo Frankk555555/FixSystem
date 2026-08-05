@@ -27,7 +27,7 @@ export interface AuthContextType {
   isTechnician: boolean;
   isAdmin: boolean;
   isUser: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: Error | null; role?: AppRole }>;
   signUp: (data: {
     email: string;
     password: string;
@@ -37,9 +37,7 @@ export interface AuthContextType {
     role?: AppRole;
   }) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
-  switchRole: (role: AppRole) => void;
   updateProfile: (data: { full_name: string; phone: string; person_code: string }) => Promise<{ error: Error | null }>;
-  quickDemoLogin: (role: AppRole) => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -68,44 +66,6 @@ export function getRoleLabel(role: AppRole): string {
   }
 }
 
-export const DEMO_USERS: Record<AppRole, { email: string; pass: string; name: string; phone: string; code: string }> = {
-  user: {
-    email: "user@demo.ac.th",
-    pass: "demo1234",
-    name: "สมชาย ใจดี (นักศึกษา)",
-    phone: "081-234-5678",
-    code: "65010001",
-  },
-  technician_electric: {
-    email: "electric@demo.ac.th",
-    pass: "demo1234",
-    name: "ช่างสมศักดิ์ ไฟฟ้าแรงสูง",
-    phone: "089-111-2233",
-    code: "EMP-E01",
-  },
-  technician_plumbing: {
-    email: "plumbing@demo.ac.th",
-    pass: "demo1234",
-    name: "ช่างสุรชัย ท่อน้ำดี",
-    phone: "089-222-3344",
-    code: "EMP-P01",
-  },
-  technician_general: {
-    email: "general@demo.ac.th",
-    pass: "demo1234",
-    name: "ช่างวิชัย ซ่อมสร้างแกร่ง",
-    phone: "089-333-4455",
-    code: "EMP-G01",
-  },
-  admin: {
-    email: "admin@demo.ac.th",
-    pass: "demo1234",
-    name: "ดร.วิชาการ บริหารระบบ (Admin)",
-    phone: "080-999-8877",
-    code: "ADM-001",
-  },
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -114,7 +74,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentRole, setCurrentRole] = useState<AppRole>("user");
   const [loading, setLoading] = useState(true);
 
-  const fetchUserData = useCallback(async (userId: string, userEmail?: string) => {
+  const fetchUserData = useCallback(async (userId: string, userEmail?: string): Promise<AppRole> => {
+    let resolvedRole: AppRole = "user";
     try {
       // 1. Fetch profile
       const { data: profileData, error: profileErr } = await supabase
@@ -137,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // 2. Fetch roles
-      const { data: roleRows, error: roleErr } = await supabase
+      const { data: roleRows } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", userId);
@@ -145,16 +106,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (roleRows && roleRows.length > 0) {
         const fetchedRoles = roleRows.map((r) => r.role as AppRole);
         setRoles(fetchedRoles);
-        // Default current role: prioritize technician or admin if available
-        const preferred = fetchedRoles.find((r) => r !== "user") || fetchedRoles[0];
+        // Priority: admin > technician_* > user
+        const preferred = fetchedRoles.find((r) => r === "admin") || 
+                          fetchedRoles.find((r) => r.startsWith("technician_")) || 
+                          fetchedRoles[0];
+        resolvedRole = preferred;
         setCurrentRole(preferred);
       } else {
         setRoles(["user"]);
         setCurrentRole("user");
+        resolvedRole = "user";
       }
     } catch (err) {
       console.error("[Auth] Error fetching user data:", err);
     }
+    return resolvedRole;
   }, []);
 
   const refreshProfile = useCallback(async () => {
@@ -214,7 +180,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [fetchUserData]);
 
-  const signIn = async (email: string, pass: string) => {
+  const signIn = async (email: string, pass: string): Promise<{ error: Error | null; role?: AppRole }> => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
@@ -222,12 +188,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       if (error) return { error };
 
+      let userRole: AppRole = "user";
       if (data.user) {
         setUser(data.user);
         setSession(data.session);
-        await fetchUserData(data.user.id, data.user.email);
+        userRole = await fetchUserData(data.user.id, data.user.email);
       }
-      return { error: null };
+      return { error: null, role: userRole };
     } catch (err) {
       return { error: err as Error };
     }
@@ -295,10 +262,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setCurrentRole("user");
   };
 
-  const switchRole = (role: AppRole) => {
-    setCurrentRole(role);
-  };
-
   const updateProfile = async (data: { full_name: string; phone: string; person_code: string }) => {
     if (!user) return { error: new Error("ไม่ได้เข้าสู่ระบบ") };
     try {
@@ -329,34 +292,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const quickDemoLogin = async (role: AppRole) => {
-    const demo = DEMO_USERS[role];
-    if (!demo) return { error: new Error("ไม่พบบัญชีทดสอบ") };
-
-    // Try sign in first
-    let res = await signIn(demo.email, demo.pass);
-    if (res.error) {
-      // If user does not exist yet, auto sign up the demo account
-      const signupRes = await signUp({
-        email: demo.email,
-        password: demo.pass,
-        full_name: demo.name,
-        phone: demo.phone,
-        person_code: demo.code,
-        role,
-      });
-      if (signupRes.error) {
-        return { error: signupRes.error };
-      }
-      res = await signIn(demo.email, demo.pass);
-    }
-
-    if (!res.error) {
-      setCurrentRole(role);
-    }
-    return res;
-  };
-
   const department = getDepartmentFromRole(currentRole);
   const isTechnician = currentRole.startsWith("technician_");
   const isAdmin = currentRole === "admin";
@@ -378,9 +313,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signIn,
         signUp,
         signOut,
-        switchRole,
         updateProfile,
-        quickDemoLogin,
         refreshProfile,
       }}
     >

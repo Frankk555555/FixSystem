@@ -42,4 +42,5 @@ out/
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
+# TypeScript cache
+*.tsbuildinfo

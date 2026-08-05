@@ -32,40 +32,12 @@ import { toast } from "sonner";
 
 export function AppHeader() {
   const router = useRouter();
-  const { user, profile, currentRole, isTechnician, isAdmin, signOut, switchRole } = useAuth();
+  const { user, profile, currentRole, isTechnician, isAdmin, signOut } = useAuth();
 
   async function handleSignOut() {
     await signOut();
     toast.success("ออกจากระบบเรียบร้อย");
     router.replace("/auth");
-  }
-
-  function handleSwitchRole(r: AppRole) {
-    switchRole(r);
-    toast.info(`สลับบทบาทเป็น ${getRoleShortLabel(r)}`);
-    if (r.startsWith("technician_")) {
-      router.push("/technician");
-    } else if (r === "admin") {
-      router.push("/admin");
-    } else {
-      router.push("/dashboard");
-    }
-  }
-
-  function getRoleShortLabel(role: AppRole): string {
-    switch (role) {
-      case "technician_electric":
-        return "ช่างไฟฟ้า";
-      case "technician_plumbing":
-        return "ช่างประปา";
-      case "technician_general":
-        return "ช่างซ่อมสร้าง";
-      case "admin":
-        return "ผู้ดูแลระบบ";
-      case "user":
-      default:
-        return "ผู้ใช้งาน";
-    }
   }
 
   function getRoleBadgeVariant(role: AppRole): { label: string; icon: React.ReactNode; colorClass: string } {
@@ -159,93 +131,21 @@ export function AppHeader() {
             </Link>
           </Button>
 
-          {/* Role selector dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className={`ml-1 flex items-center gap-1.5 border px-2.5 sm:px-3 ${roleInfo.colorClass}`}
-              >
-                {roleInfo.icon}
-                <span className="text-xs font-semibold sm:text-sm">{roleInfo.label}</span>
-                <ChevronDown className="h-3 w-3 opacity-60" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64">
-              <DropdownMenuLabel>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-normal text-muted-foreground">เข้าสู่ระบบในฐานะ</span>
-                  <span className="truncate font-semibold text-foreground">
-                    {profile?.full_name || user?.email || "ผู้ใช้งาน"}
-                  </span>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel className="text-xs text-muted-foreground">
-                สลับบทบาทการใช้งาน
-              </DropdownMenuLabel>
+          {/* User Role Badge */}
+          <div className={`flex items-center gap-1.5 border px-2.5 py-1 rounded-md text-xs font-semibold ${roleInfo.colorClass}`}>
+            {roleInfo.icon}
+            <span className="hidden xs:inline sm:inline">{roleInfo.label}</span>
+          </div>
 
-              <DropdownMenuItem
-                onClick={() => handleSwitchRole("user")}
-                className="flex items-center justify-between cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <UserRound className="h-4 w-4 text-blue-500" />
-                  <span>ผู้ใช้งานทั่วไป (User)</span>
-                </div>
-                {currentRole === "user" && <Badge variant="secondary" className="text-xs">กำลังใช้</Badge>}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => handleSwitchRole("technician_electric")}
-                className="flex items-center justify-between cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-amber-500" />
-                  <span>ช่าง - แผนกไฟฟ้า ⚡</span>
-                </div>
-                {currentRole === "technician_electric" && <Badge variant="secondary" className="text-xs">กำลังใช้</Badge>}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => handleSwitchRole("technician_plumbing")}
-                className="flex items-center justify-between cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <Droplets className="h-4 w-4 text-cyan-500" />
-                  <span>ช่าง - แผนกประปา 💧</span>
-                </div>
-                {currentRole === "technician_plumbing" && <Badge variant="secondary" className="text-xs">กำลังใช้</Badge>}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => handleSwitchRole("technician_general")}
-                className="flex items-center justify-between cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <Hammer className="h-4 w-4 text-emerald-500" />
-                  <span>ช่าง - แผนกซ่อมสร้าง 🔨</span>
-                </div>
-                {currentRole === "technician_general" && <Badge variant="secondary" className="text-xs">กำลังใช้</Badge>}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => handleSwitchRole("admin")}
-                className="flex items-center justify-between cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-purple-500" />
-                  <span>ผู้ดูแลระบบ (Admin) 🛡️</span>
-                </div>
-                {currentRole === "admin" && <Badge variant="secondary" className="text-xs">กำลังใช้</Badge>}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button variant="ghost" size="sm" onClick={handleSignOut} title="ออกจากระบบ">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleSignOut} 
+            title="ออกจากระบบ"
+            className="text-muted-foreground hover:text-destructive gap-1"
+          >
             <LogOut className="h-4 w-4" />
-            <span className="hidden md:inline">ออก</span>
+            <span className="hidden md:inline">ออกจากระบบ</span>
           </Button>
         </nav>
       </div>
