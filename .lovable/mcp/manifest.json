@@ -1,0 +1,178 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://ytvawdbegplqmmngvdqz.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "campus-fix-hub-71",
+      "version": "0.1.0",
+      "title": "Campus Fix Hub (71)"
+    },
+    "tools": [
+      {
+        "name": "list_my_tickets",
+        "title": "List repair tickets",
+        "description": "List repair tickets visible to the signed-in user (their own reports; technicians and admins see their scope).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "assigned",
+                "scheduled",
+                "in_progress",
+                "completed"
+              ],
+              "description": "Filter by ticket status."
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Max rows to return (default 20)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_ticket",
+        "title": "Get repair ticket",
+        "description": "Fetch one repair ticket by its id or ticket code (e.g. RPR-2025-00001).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "ticket": {
+              "type": "string",
+              "description": "Ticket UUID or ticket code."
+            }
+          },
+          "required": [
+            "ticket"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_ticket",
+        "title": "Create repair ticket",
+        "description": "Report a new campus repair issue as the signed-in user.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "department": {
+              "type": "string",
+              "enum": [
+                "electric",
+                "plumbing",
+                "general"
+              ],
+              "description": "Repair department: electric, plumbing, or general (structural)."
+            },
+            "priority": {
+              "type": "string",
+              "enum": [
+                "normal",
+                "urgent",
+                "critical"
+              ],
+              "description": "Urgency (default normal)."
+            },
+            "building": {
+              "type": "string",
+              "description": "Building name."
+            },
+            "floor": {
+              "type": "string",
+              "description": "Floor."
+            },
+            "room": {
+              "type": "string",
+              "description": "Room number."
+            },
+            "location_note": {
+              "type": "string",
+              "description": "Extra location hint."
+            },
+            "description": {
+              "type": "string",
+              "description": "What is broken."
+            }
+          },
+          "required": [
+            "department",
+            "building",
+            "description"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_ticket_status",
+        "title": "Update ticket status",
+        "description": "Change a repair ticket's status. Allowed only where the signed-in user's permissions (technician/admin/owner) permit it.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "ticket_id": {
+              "type": "string",
+              "description": "Ticket UUID."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "assigned",
+                "scheduled",
+                "in_progress",
+                "completed"
+              ],
+              "description": "New status."
+            }
+          },
+          "required": [
+            "ticket_id",
+            "status"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
