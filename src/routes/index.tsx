@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "ระบบแจ้งซ่อมออนไลน์ - มหาวิทยาลัย" },
       {
         property: "og:description",
-        content: "แจ้งซ่อม ติดตามสถานะ และจัดการงานซ่อมภายในมหาวิทยาลัย",
+        content: "แจ้งซ่อม ติดตามสถานะ และจัดการงานซ่อมภายในมหาวิทยาลัยได้ในที่เดียว",
       },
     ],
   }),
