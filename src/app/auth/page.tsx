@@ -11,18 +11,12 @@ import {
   User,
   Phone,
   CreditCard,
-  Zap,
-  Droplets,
-  Hammer,
-  ShieldCheck,
-  UserRound,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth, type AppRole } from "@/contexts/AuthContext";
 
 export default function AuthPage() {
@@ -41,7 +35,6 @@ export default function AuthPage() {
   const [signupCode, setSignupCode] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
-  const [signupRole, setSignupRole] = useState<AppRole>("user");
 
   function redirectByRole(role: AppRole) {
     if (role.startsWith("technician_")) {
@@ -90,7 +83,7 @@ export default function AuthPage() {
       full_name: signupName,
       phone: signupPhone,
       person_code: signupCode,
-      role: signupRole,
+      role: "user",
     });
     setLoading(false);
 
@@ -98,7 +91,7 @@ export default function AuthPage() {
       toast.error(`สมัครสมาชิกไม่สำเร็จ: ${error.message}`);
     } else {
       toast.success("สมัครสมาชิกสำเร็จและเข้าสู่ระบบเรียบร้อย!");
-      redirectByRole(signupRole);
+      router.replace("/dashboard");
     }
   }
 
@@ -248,66 +241,6 @@ export default function AuthPage() {
                         className="pl-9"
                       />
                     </div>
-                  </div>
-
-                  {/* Role Selection */}
-                  <div className="space-y-2 pt-1">
-                    <Label className="text-sm font-semibold">ประเภทผู้ใช้งาน / สิทธิ์ของบัญชี *</Label>
-                    <RadioGroup
-                      value={signupRole}
-                      onValueChange={(val) => setSignupRole(val as AppRole)}
-                      className="space-y-2"
-                    >
-                      <div className="flex items-center space-x-3 rounded-lg border p-2.5 transition hover:bg-muted/40 cursor-pointer">
-                        <RadioGroupItem value="user" id="role-user" />
-                        <Label htmlFor="role-user" className="flex-1 cursor-pointer flex items-center justify-between">
-                          <span className="flex items-center gap-2">
-                            <UserRound className="h-4 w-4 text-blue-500" />
-                            <span>ผู้ใช้งานทั่วไป (นักศึกษา / อาจารย์ / บุคลากร)</span>
-                          </span>
-                        </Label>
-                      </div>
-
-                      <div className="flex items-center space-x-3 rounded-lg border border-amber-500/30 p-2.5 transition hover:bg-amber-500/5 cursor-pointer">
-                        <RadioGroupItem value="technician_electric" id="role-electric" />
-                        <Label htmlFor="role-electric" className="flex-1 cursor-pointer flex items-center justify-between">
-                          <span className="flex items-center gap-2">
-                            <Zap className="h-4 w-4 text-amber-500" />
-                            <span>ช่างซ่อม — แผนกไฟฟ้า (Electric) ⚡</span>
-                          </span>
-                        </Label>
-                      </div>
-
-                      <div className="flex items-center space-x-3 rounded-lg border border-cyan-500/30 p-2.5 transition hover:bg-cyan-500/5 cursor-pointer">
-                        <RadioGroupItem value="technician_plumbing" id="role-plumbing" />
-                        <Label htmlFor="role-plumbing" className="flex-1 cursor-pointer flex items-center justify-between">
-                          <span className="flex items-center gap-2">
-                            <Droplets className="h-4 w-4 text-cyan-500" />
-                            <span>ช่างซ่อม — แผนกประปา (Plumbing) 💧</span>
-                          </span>
-                        </Label>
-                      </div>
-
-                      <div className="flex items-center space-x-3 rounded-lg border border-emerald-500/30 p-2.5 transition hover:bg-emerald-500/5 cursor-pointer">
-                        <RadioGroupItem value="technician_general" id="role-general" />
-                        <Label htmlFor="role-general" className="flex-1 cursor-pointer flex items-center justify-between">
-                          <span className="flex items-center gap-2">
-                            <Hammer className="h-4 w-4 text-emerald-500" />
-                            <span>ช่างซ่อม — แผนกซ่อมสร้าง (Building/General) 🔨</span>
-                          </span>
-                        </Label>
-                      </div>
-
-                      <div className="flex items-center space-x-3 rounded-lg border border-purple-500/30 p-2.5 transition hover:bg-purple-500/5 cursor-pointer">
-                        <RadioGroupItem value="admin" id="role-admin" />
-                        <Label htmlFor="role-admin" className="flex-1 cursor-pointer flex items-center justify-between">
-                          <span className="flex items-center gap-2">
-                            <ShieldCheck className="h-4 w-4 text-purple-500" />
-                            <span>ผู้ดูแลระบบ (Administrator) 🛡️</span>
-                          </span>
-                        </Label>
-                      </div>
-                    </RadioGroup>
                   </div>
 
                   <Button type="submit" className="w-full shadow-soft" size="lg" disabled={loading}>

@@ -209,7 +209,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     role?: AppRole;
   }) => {
     try {
-      const roleToAssign: AppRole = data.role || "user";
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email.trim(),
         password: data.password,
@@ -236,13 +235,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           person_code: data.person_code.trim(),
         });
 
-        // Insert selected role if different from default 'user'
-        if (roleToAssign !== "user") {
-          await supabase.from("user_roles").upsert({
-            user_id: userId,
-            role: roleToAssign,
-          });
-        }
+        // Default role is always 'user'
+        await supabase.from("user_roles").upsert({
+          user_id: userId,
+          role: "user",
+        });
 
         await fetchUserData(userId, data.email);
       }
