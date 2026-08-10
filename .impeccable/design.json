@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-10T15:47:29Z",
+  "title": "Design System: Campus Fix Hub",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "University Royal Purple", "canonical": "oklch(0.38 0.18 295)" },
+      "primary-glow": { "role": "primary", "displayName": "Purple Glow", "canonical": "oklch(0.62 0.22 295)" },
+      "secondary": { "role": "secondary", "displayName": "Soft Cream", "canonical": "oklch(0.96 0.03 95)" },
+      "accent": { "role": "tertiary", "displayName": "Achievement Gold", "canonical": "oklch(0.85 0.17 92)" },
+      "background": { "role": "neutral", "displayName": "Warm Canvas", "canonical": "oklch(0.99 0.01 95)" },
+      "foreground": { "role": "neutral", "displayName": "Deep Ink", "canonical": "oklch(0.22 0.05 295)" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "IBM Plex Sans Thai" },
+      "body": { "displayName": "Sarabun" }
+    },
+    "shadows": [
+      { "name": "shadow-elegant", "value": "0 18px 40px -20px oklch(0.38 0.18 295 / 0.35)", "purpose": "Applied to modals and highlighted priority tickets." },
+      { "name": "shadow-soft", "value": "0 6px 18px -10px oklch(0.38 0.18 295 / 0.25)", "purpose": "Applied to default cards and elevated containers." },
+      { "name": "shadow-glow", "value": "0 0 40px oklch(0.62 0.22 295 / 0.35)", "purpose": "Applied behind primary buttons on hover." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-default",
+      "description": "Used for main actions like submitting a repair request.",
+      "html": "<button class=\"ds-btn-primary\">SUBMIT TICKET</button>",
+      "css": ".ds-btn-primary { background: oklch(0.38 0.18 295); color: oklch(0.99 0.01 95); padding: 8px 16px; font-weight: 500; font-family: 'IBM Plex Sans Thai', sans-serif; border: none; border-radius: 0.75rem; transition: background 0.2s, box-shadow 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); } .ds-btn-primary:hover { background: oklch(0.62 0.22 295); box-shadow: 0 0 20px oklch(0.62 0.22 295 / 0.35); cursor: pointer; }"
+    },
+    {
+      "name": "Ticket Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Used to display a repair ticket in the technician dashboard.",
+      "html": "<div class=\"ds-card\"><h3>Broken AC Unit</h3><p>Room 402, Engineering Bldg</p></div>",
+      "css": ".ds-card { background: oklch(1 0 0); color: oklch(0.22 0.05 295); padding: 1.5rem; border-radius: 0.75rem; border: 1px solid oklch(0.9 0.02 295); box-shadow: 0 6px 18px -10px oklch(0.38 0.18 295 / 0.25); font-family: 'Sarabun', sans-serif; } .ds-card h3 { font-family: 'IBM Plex Sans Thai', sans-serif; margin: 0 0 8px 0; font-size: 1.125rem; font-weight: 600; } .ds-card p { margin: 0; color: oklch(0.5 0.04 295); font-size: 0.875rem; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Modern Campus Blueprint",
+    "overview": "The design is structured, clear, and highly reliable. It uses \"University Royal Purple\" and \"Achievement Gold\" to project institutional authority without feeling stale. Surfaces are tactile and lifted, ensuring that interactive elements like buttons feel distinctly clickable while cards float gracefully on soft purple shadows. The system avoids visual clutter to streamline the maintenance reporting flow for students and technicians alike.",
+    "keyCharacteristics": [
+      "Institutional but modern",
+      "Tactile surfaces with clear elevation",
+      "Deep purple contrasts with warm cream backgrounds",
+      "Highly legible typography"
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Achievement Gold is reserved for critical status indicators (like priority tickets) or specific CTAs. It should never be used as a structural background.", "section": "colors" },
+      { "name": "The Tinted Shadow Rule", "body": "Shadows are never pure black or gray. They must always carry a slight opacity of University Royal Purple (oklch(0.38 0.18 295)) to ensure they blend harmoniously with the warm canvas.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use tinted purple shadows to create depth and hierarchy.",
+      "Do ensure all text has high contrast against the warm canvas background.",
+      "Do reserve Achievement Gold for actionable or priority highlights."
+    ],
+    "donts": [
+      "Don't use pure black (#000000) for text; always use Deep Ink (oklch(0.22 0.05 295)).",
+      "Don't mix multiple accent colors on a single card; let the ticket status dictate the color coding."
+    ]
+  }
+}

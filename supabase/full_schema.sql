@@ -282,10 +282,10 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authentic
 GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated, service_role;
 
-REVOKE EXECUTE ON FUNCTION public.set_updated_at() FROM PUBLIC, anon, authenticated;
-REVOKE EXECUTE ON FUNCTION public.generate_ticket_code() FROM PUBLIC, anon, authenticated;
-REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.set_updated_at() TO postgres, supabase_auth_admin, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.generate_ticket_code() TO postgres, supabase_auth_admin, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.handle_new_user() TO postgres, supabase_auth_admin, anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated, anon, service_role;
 
 -- 10. Storage Bucket & Policies for 'repair-media'
 INSERT INTO storage.buckets (id, name, public) 
