@@ -127,14 +127,14 @@ export default function AdminPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-soft">
-            <ShieldCheck className="h-6 w-6" />
+      <div className="flex flex-wrap items-end justify-between gap-6 pb-4 border-b border-border/50">
+        <div className="flex items-center gap-4">
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-glow">
+            <ShieldCheck className="h-7 w-7" />
           </span>
           <div>
-            <h1 className="text-3xl font-semibold">หน้าผู้ดูแลระบบ (Admin)</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="font-display text-3xl font-bold tracking-tight">หน้าผู้ดูแลระบบ (Admin)</h1>
+            <p className="text-sm font-medium text-muted-foreground mt-1">
               รายงานสถิติและภาพรวมการแจ้งซ่อมทั่วทั้งมหาวิทยาลัย (Supabase Realtime)
             </p>
           </div>
@@ -155,25 +155,25 @@ export default function AdminPage() {
       {/* KPI Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          icon={<ClipboardList className="h-5 w-5" />}
+          icon={<ClipboardList className="h-6 w-6" />}
           label="ใบแจ้งซ่อมทั้งหมด"
           value={total}
           tone="primary"
         />
         <StatCard
-          icon={<Clock className="h-5 w-5" />}
+          icon={<Clock className="h-6 w-6" />}
           label="รอดำเนินการ (Pending)"
           value={pending}
-          tone="muted"
+          tone="warning"
         />
         <StatCard
-          icon={<Wrench className="h-5 w-5" />}
+          icon={<Wrench className="h-6 w-6" />}
           label="กำลังดำเนินการ (Working)"
           value={inProgress}
           tone="accent"
         />
         <StatCard
-          icon={<CheckCircle2 className="h-5 w-5" />}
+          icon={<CheckCircle2 className="h-6 w-6" />}
           label="เสร็จสิ้นแล้ว (Completed)"
           value={completed}
           tone="success"
@@ -185,11 +185,11 @@ export default function AdminPage() {
         {/* Department Stats Bar Chart */}
         <Card className="shadow-soft">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 font-display text-xl">
               <BarChart3 className="h-5 w-5 text-primary" />
               สถิติจำแนกตามแผนกช่าง
             </CardTitle>
-            <CardDescription>เปรียบเทียบจำนวนงานเสร็จสิ้นและงานคงค้างใน 3 แผนก</CardDescription>
+            <CardDescription className="text-sm">เปรียบเทียบจำนวนงานเสร็จสิ้นและงานคงค้างใน 3 แผนก</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-72">
@@ -237,11 +237,11 @@ export default function AdminPage() {
         {/* Status Distribution Pie Chart */}
         <Card className="shadow-soft">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 font-display text-xl">
               <TrendingUp className="h-5 w-5 text-primary" />
               สัดส่วนสถานะใบงานทั้งหมด
             </CardTitle>
-            <CardDescription>สัดส่วนเปอร์เซ็นต์ตามสถานะปัจจุบันในระบบ</CardDescription>
+            <CardDescription className="text-sm">สัดส่วนเปอร์เซ็นต์ตามสถานะปัจจุบันในระบบ</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-72 flex items-center justify-center">
@@ -283,11 +283,11 @@ export default function AdminPage() {
       {/* Monthly Trend Chart */}
       <Card className="shadow-soft">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 font-display text-xl">
             <TrendingUp className="h-5 w-5 text-primary" />
             แนวโน้มการแจ้งซ่อมรายเดือน (6 เดือนย้อนหลัง)
           </CardTitle>
-          <CardDescription>เปรียบเทียบปริมาณงานเสร็จสิ้น เทียบกับ งานที่รอดำเนินการ</CardDescription>
+          <CardDescription className="text-sm">เปรียบเทียบปริมาณงานเสร็จสิ้น เทียบกับ งานที่รอดำเนินการ</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-80">
@@ -316,8 +316,8 @@ export default function AdminPage() {
       {/* Recent Tickets List */}
       <Card className="shadow-soft">
         <CardHeader>
-          <CardTitle>รายการแจ้งซ่อมล่าสุดทุกแผนก ({tickets.length})</CardTitle>
-          <CardDescription>คลิกรายการเพื่อตรวจสอบข้อมูลและประวัติการดำเนินงาน</CardDescription>
+          <CardTitle className="font-display text-xl">รายการแจ้งซ่อมล่าสุดทุกแผนก ({tickets.length})</CardTitle>
+          <CardDescription className="text-sm">คลิกรายการเพื่อตรวจสอบข้อมูลและประวัติการดำเนินงาน</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
@@ -337,26 +337,26 @@ export default function AdminPage() {
                   <li key={t.id}>
                     <Link
                       href={`/tickets/${t.id}`}
-                      className="flex flex-col gap-2 px-6 py-4 transition hover:bg-muted/40 sm:flex-row sm:items-center sm:justify-between"
+                      className="group flex flex-col gap-3 px-6 py-5 transition-all hover:bg-muted/40 sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <div className="space-y-1">
+                      <div className="space-y-2">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="font-mono text-sm font-bold text-primary">{t.ticket_code}</span>
-                          <Badge variant="outline" className="gap-1">
+                          <Badge variant="outline" className="gap-1 font-medium bg-background/50">
                             {dept?.icon} {dept?.label}
                           </Badge>
                           <Badge className={prio.className}>{prio.label}</Badge>
                         </div>
-                        <p className="line-clamp-1 text-sm font-medium text-foreground">{t.description}</p>
-                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <MapPin className="h-3 w-3" />
-                          {t.building}
-                          {t.room ? ` · ห้อง ${t.room}` : ""}
-                          {" · "}
-                          {new Date(t.created_at).toLocaleString("th-TH", { dateStyle: "short", timeStyle: "short" })}
+                        <p className="line-clamp-1 text-base font-medium text-foreground">{t.description}</p>
+                        <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                          <MapPin className="h-3.5 w-3.5" />
+                          <span>{t.building}{t.room ? ` · ห้อง ${t.room}` : ""}</span>
+                          <span>&bull;</span>
+                          <Clock className="h-3.5 w-3.5 ml-1" />
+                          <span>{new Date(t.created_at).toLocaleString("th-TH", { dateStyle: "short", timeStyle: "short" })}</span>
                         </p>
                       </div>
-                      <Badge className={status.className}>{status.label}</Badge>
+                      <Badge className={`shrink-0 mt-2 sm:mt-0 ${status.className}`}>{status.label}</Badge>
                     </Link>
                   </li>
                 );
@@ -378,23 +378,25 @@ function StatCard({
   icon: React.ReactNode;
   label: string;
   value: number;
-  tone: "primary" | "muted" | "success" | "accent";
+  tone: "primary" | "muted" | "success" | "accent" | "warning";
 }) {
   const toneClass =
     tone === "primary"
-      ? "bg-gradient-primary text-primary-foreground"
+      ? "bg-gradient-primary text-primary-foreground shadow-sm"
       : tone === "success"
-        ? "bg-success text-success-foreground"
-        : tone === "accent"
-          ? "bg-primary/15 text-primary"
-          : "bg-accent text-accent-foreground";
+        ? "bg-success/15 text-success-foreground"
+        : tone === "warning"
+          ? "bg-warning/20 text-warning-foreground"
+          : tone === "accent"
+            ? "bg-primary/10 text-primary"
+            : "bg-muted text-muted-foreground";
   return (
-    <Card className="overflow-hidden shadow-soft">
-      <CardContent className="flex items-center gap-4 p-5">
-        <div className={`grid h-12 w-12 place-items-center rounded-xl ${toneClass}`}>{icon}</div>
+    <Card className="overflow-hidden shadow-soft transition-all duration-300 hover:shadow-elegant hover:-translate-y-1">
+      <CardContent className="flex items-center gap-5 p-6">
+        <div className={`grid h-14 w-14 place-items-center rounded-2xl ${toneClass}`}>{icon}</div>
         <div>
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="text-3xl font-semibold">{value}</p>
+          <p className="text-sm font-medium text-muted-foreground">{label}</p>
+          <p className="font-display text-4xl font-bold tracking-tight mt-1">{value}</p>
         </div>
       </CardContent>
     </Card>

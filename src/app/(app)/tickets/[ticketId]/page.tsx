@@ -30,7 +30,7 @@ import {
   STATUSES,
 } from "@/lib/repair-constants";
 import { useAuth } from "@/contexts/AuthContext";
-
+import { TicketChat } from "@/components/chat/TicketChat";
 type RepairTicket = Tables<"repair_tickets">;
 type RepairTicketMedia = Tables<"repair_ticket_media"> & { publicUrl?: string };
 type RepairStatus = Database["public"]["Enums"]["repair_status"];
@@ -386,6 +386,11 @@ export default function TicketDetailPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Realtime Chat Component */}
+      <div className="mt-6">
+        <TicketChat ticketId={ticket.id} />
+      </div>
     </div>
   );
 }
