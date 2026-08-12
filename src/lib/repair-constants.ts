@@ -35,9 +35,9 @@ export const DEPARTMENTS = [
 export type DepartmentValue = (typeof DEPARTMENTS)[number]["value"];
 
 export const PRIORITIES = [
-  { value: "normal", label: "ทั่วไป", className: "bg-muted text-muted-foreground" },
-  { value: "urgent", label: "ด่วน", className: "bg-warning text-warning-foreground" },
-  { value: "critical", label: "ด่วนที่สุด", className: "bg-destructive text-destructive-foreground" },
+  { value: "normal", label: "ทั่วไป", className: "bg-muted text-muted-foreground hover:bg-muted/80" },
+  { value: "urgent", label: "ด่วน", className: "bg-warning text-warning-foreground hover:bg-warning/80 hover:text-warning-foreground" },
+  { value: "critical", label: "ด่วนที่สุด", className: "bg-destructive text-destructive-foreground hover:bg-destructive/80 hover:text-destructive-foreground" },
 ] as const;
 
 export type PriorityValue = (typeof PRIORITIES)[number]["value"];
@@ -47,11 +47,11 @@ export const STATUSES: Array<{
   label: string;
   className: string;
 }> = [
-  { value: "pending", label: "รอดำเนินการ", className: "bg-muted text-muted-foreground" },
-  { value: "assigned", label: "รับเรื่องแล้ว", className: "bg-primary/15 text-primary" },
-  { value: "scheduled", label: "นัดหมายแล้ว", className: "bg-accent text-accent-foreground" },
-  { value: "in_progress", label: "กำลังดำเนินการ", className: "bg-primary text-primary-foreground" },
-  { value: "completed", label: "เสร็จสิ้น", className: "bg-success text-success-foreground" },
+  { value: "pending", label: "รอดำเนินการ", className: "bg-muted text-muted-foreground hover:bg-muted/80" },
+  { value: "assigned", label: "รับเรื่องแล้ว", className: "bg-primary/15 text-primary hover:bg-primary/25 hover:text-primary" },
+  { value: "scheduled", label: "นัดหมายแล้ว", className: "bg-accent text-accent-foreground hover:bg-accent/80 hover:text-accent-foreground" },
+  { value: "in_progress", label: "กำลังดำเนินการ", className: "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" },
+  { value: "completed", label: "เสร็จสิ้น", className: "bg-success text-success-foreground hover:bg-success/80 hover:text-success-foreground" },
 ];
 
 export function getStatusMeta(value: string) {
