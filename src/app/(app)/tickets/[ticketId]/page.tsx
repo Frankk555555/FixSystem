@@ -263,7 +263,7 @@ export default function TicketDetailPage() {
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-primary" />
               <span className="text-muted-foreground">ผู้แจ้ง:</span>
-              <span className="font-medium">{reporter?.full_name || "ผู้ใช้งาน"}</span>
+              <span className="font-medium">{reporter?.full_name || reporter?.email || "ผู้ใช้งาน"}</span>
             </div>
             {reporter?.phone && (
               <div className="flex items-center gap-1.5 text-primary">

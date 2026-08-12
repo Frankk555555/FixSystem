@@ -48,7 +48,7 @@ export const STATUSES: Array<{
   className: string;
 }> = [
   { value: "pending", label: "รอดำเนินการ", className: "bg-muted text-muted-foreground hover:bg-muted/80" },
-  { value: "assigned", label: "รับเรื่องแล้ว", className: "bg-primary/15 text-primary hover:bg-primary/25 hover:text-primary" },
+  { value: "assigned", label: "รับเรื่องแล้ว", className: "bg-blue-500 text-white hover:bg-blue-600 hover:text-white" },
   { value: "scheduled", label: "นัดหมายแล้ว", className: "bg-accent text-accent-foreground hover:bg-accent/80 hover:text-accent-foreground" },
   { value: "in_progress", label: "กำลังดำเนินการ", className: "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" },
   { value: "completed", label: "เสร็จสิ้น", className: "bg-success text-success-foreground hover:bg-success/80 hover:text-success-foreground" },
