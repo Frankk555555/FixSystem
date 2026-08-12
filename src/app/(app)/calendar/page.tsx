@@ -120,7 +120,7 @@ export default function CalendarPage() {
           <CardHeader>
             <CardTitle>เลือกวันที่</CardTitle>
           </CardHeader>
-          <CardContent className="flex justify-center pb-6">
+          <CardContent className="flex justify-center pb-6 overflow-x-auto max-w-full">
             <Calendar
               mode="single"
               selected={date}

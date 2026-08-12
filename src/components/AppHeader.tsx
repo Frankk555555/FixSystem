@@ -125,36 +125,79 @@ export function AppHeader() {
             </>
           )}
 
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/calendar" className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">ปฏิทิน</span>
-            </Link>
-          </Button>
+          {/* Desktop User Menu */}
+          <div className="hidden sm:flex items-center gap-2">
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/calendar" className="flex items-center gap-1.5">
+                <Calendar className="h-4 w-4" />
+                <span>ปฏิทิน</span>
+              </Link>
+            </Button>
+            
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/profile" className="flex items-center gap-1.5">
+                <User className="h-4 w-4" />
+                <span>โปรไฟล์</span>
+              </Link>
+            </Button>
 
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/profile" className="flex items-center gap-1.5">
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">โปรไฟล์</span>
-            </Link>
-          </Button>
+            {/* User Role Badge */}
+            <div className={`flex items-center gap-1.5 border px-2.5 py-1 rounded-md text-xs font-semibold ${roleInfo.colorClass}`}>
+              {roleInfo.icon}
+              <span>{roleInfo.label}</span>
+            </div>
 
-          {/* User Role Badge */}
-          <div className={`flex items-center gap-1.5 border px-2.5 py-1 rounded-md text-xs font-semibold ${roleInfo.colorClass}`}>
-            {roleInfo.icon}
-            <span className="hidden xs:inline sm:inline">{roleInfo.label}</span>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={handleSignOut} 
+              title="ออกจากระบบ"
+              className="gap-1 bg-destructive text-white hover:bg-white hover:text-destructive border border-transparent hover:border-destructive transition-colors shadow-sm"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>ออกจากระบบ</span>
+            </Button>
           </div>
 
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleSignOut} 
-            title="ออกจากระบบ"
-            className="text-muted-foreground hover:text-destructive gap-1"
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="hidden md:inline">ออกจากระบบ</span>
-          </Button>
+          {/* Mobile User Menu (Dropdown) */}
+          <div className="sm:hidden flex items-center gap-1">
+            <div className={`flex items-center gap-1 border px-2 py-1 rounded-md text-xs font-semibold ${roleInfo.colorClass}`}>
+              {roleInfo.icon}
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full border border-primary/20 bg-primary/5 ml-1 hover:bg-primary/10">
+                  <User className="h-4 w-4 text-primary" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 mt-2">
+                <DropdownMenuLabel className="font-normal pb-2">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{profile?.full_name || user?.email || "ผู้ใช้งาน"}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{roleInfo.label}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/calendar" className="flex items-center gap-2 cursor-pointer w-full py-2">
+                    <Calendar className="h-4 w-4" />
+                    ปฏิทิน
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="flex items-center gap-2 cursor-pointer w-full py-2">
+                    <User className="h-4 w-4" />
+                    โปรไฟล์
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer py-2">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  ออกจากระบบ
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </nav>
       </div>
     </header>

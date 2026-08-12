@@ -156,9 +156,9 @@ export default function NewTicketPage() {
               <User className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">ผู้แจ้งซ่อม (ดึงข้อมูลอัตโนมัติ)</p>
+              <p className="text-xs text-muted-foreground">ผู้แจ้งซ่อม</p>
               <p className="font-semibold text-foreground">
-                {profile?.full_name || user?.email || "ผู้ใช้งาน"}
+                {profile?.full_name}
               </p>
             </div>
           </div>
@@ -171,7 +171,7 @@ export default function NewTicketPage() {
         </CardContent>
       </Card>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 pb-16">
         {/* Department Selection */}
         <Card>
           <CardHeader>
@@ -213,7 +213,7 @@ export default function NewTicketPage() {
                 type="button"
                 onClick={() => setPriority(p.value)}
                 className={cn(
-                  "rounded-full border-2 px-5 py-2 text-sm font-semibold transition cursor-pointer",
+                  "rounded-full border-2 px-5 py-2.5 min-h-[44px] text-sm font-semibold transition cursor-pointer",
                   priority === p.value
                     ? "border-primary bg-primary text-primary-foreground shadow-soft"
                     : "border-border bg-card text-foreground hover:border-primary/50",
@@ -234,7 +234,7 @@ export default function NewTicketPage() {
             <div>
               <Label htmlFor="building">อาคารสถานที่ *</Label>
               <Select value={building} onValueChange={setBuilding}>
-                <SelectTrigger id="building" className="mt-1">
+                <SelectTrigger id="building" className="mt-1 h-11">
                   <SelectValue placeholder="-- กรุณาเลือกอาคาร --" />
                 </SelectTrigger>
                 <SelectContent>
@@ -252,7 +252,7 @@ export default function NewTicketPage() {
                 <Label htmlFor="floor">ชั้น</Label>
                 <Input
                   id="floor"
-                  className="mt-1"
+                  className="mt-1 h-11"
                   value={floor}
                   onChange={(e) => setFloor(e.target.value)}
                   placeholder="เช่น ชั้น 3, ชั้น G"
@@ -262,7 +262,7 @@ export default function NewTicketPage() {
                 <Label htmlFor="room">เลขห้อง</Label>
                 <Input
                   id="room"
-                  className="mt-1"
+                  className="mt-1 h-11"
                   value={room}
                   onChange={(e) => setRoom(e.target.value)}
                   placeholder="เช่น ห้อง 305, ห้อง Lab 2"
@@ -274,7 +274,7 @@ export default function NewTicketPage() {
               <Label htmlFor="locationNote">จุดอ้างอิงเพิ่มเติม</Label>
               <Input
                 id="locationNote"
-                className="mt-1"
+                className="mt-1 h-11"
                 value={locationNote}
                 onChange={(e) => setLocationNote(e.target.value)}
                 placeholder="เช่น ริมหน้าต่างฝั่งทิศใต้, ใกล้ตู้กดน้ำ"
@@ -288,7 +288,7 @@ export default function NewTicketPage() {
                   <Button
                     variant={"outline"}
                     className={cn(
-                      "w-[280px] justify-start text-left font-normal",
+                      "w-[280px] h-11 justify-start text-left font-normal",
                       !scheduledAt && "text-muted-foreground"
                     )}
                   >
@@ -381,12 +381,13 @@ export default function NewTicketPage() {
           <Button
             type="button"
             variant="outline"
+            className="h-[44px] w-full sm:w-auto"
             onClick={() => router.push("/dashboard")}
             disabled={submitting}
           >
             ยกเลิก
           </Button>
-          <Button type="submit" size="lg" disabled={submitting} className="shadow-elegant min-w-36">
+          <Button type="submit" size="lg" disabled={submitting} className="shadow-elegant min-h-[44px] w-full sm:w-auto sm:min-w-36">
             {submitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
