@@ -56,11 +56,11 @@ CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles(email);
 -- Enable RLS for Profiles
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users view own profile" ON public.profiles;
-CREATE POLICY "Users view own profile" 
+DROP POLICY IF EXISTS "Everyone can view profiles" ON public.profiles;
+CREATE POLICY "Everyone can view profiles" 
 ON public.profiles FOR SELECT 
 TO authenticated 
-USING ((select auth.uid()) = id);
+USING (true);
 
 DROP POLICY IF EXISTS "Users update own profile" ON public.profiles;
 CREATE POLICY "Users update own profile" 
