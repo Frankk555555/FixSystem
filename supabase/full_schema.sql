@@ -131,6 +131,7 @@ CREATE TABLE IF NOT EXISTS public.repair_tickets (
   location_note TEXT,
   description TEXT NOT NULL,
   status public.repair_status NOT NULL DEFAULT 'pending',
+  scheduled_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -418,3 +419,125 @@ BEGIN
     ALTER PUBLICATION supabase_realtime ADD TABLE public.ticket_messages;
   END IF;
 END $$;
+
+-- 12. RPC Functions for Admin Role Management
+CREATE OR REPLACE FUNCTION public.get_users_with_roles()
+RETURNS TABLE (
+  id UUID,
+  full_name TEXT,
+  email TEXT,
+  phone TEXT,
+  role public.app_role
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM public.user_roles _ur
+    WHERE _ur.user_id = auth.uid() AND _ur.role = 'admin'::public.app_role
+  ) THEN
+    RAISE EXCEPTION 'Access Denied: Only administrators can view users';
+  END IF;
+
+  RETURN QUERY
+  SELECT 
+    p.id,
+    p.full_name,
+    p.email,
+    p.phone,
+    COALESCE(ur.role, 'user'::public.app_role)
+  FROM public.profiles p
+  LEFT JOIN public.user_roles ur ON p.id = ur.user_id;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.assign_user_role(target_user_id UUID, new_role public.app_role)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM public.user_roles _ur
+    WHERE _ur.user_id = auth.uid() AND _ur.role = 'admin'::public.app_role
+  ) THEN
+    RAISE EXCEPTION 'Access Denied: Only administrators can assign roles';
+  END IF;
+
+  DELETE FROM public.user_roles WHERE user_id = target_user_id;
+  INSERT INTO public.user_roles (user_id, role)
+  VALUES (target_user_id, new_role);
+END;
+$$;
+
+-- 13. Technician Unavailability
+CREATE TABLE IF NOT EXISTS public.technician_unavailability (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  technician_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  department public.repair_department NOT NULL,
+  unavailable_date DATE NOT NULL,
+  reason TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE(technician_id, unavailable_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_tech_unavail_dept_date ON public.technician_unavailability(department, unavailable_date);
+
+ALTER TABLE public.technician_unavailability ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Everyone can read unavailability" ON public.technician_unavailability;
+CREATE POLICY "Everyone can read unavailability"
+ON public.technician_unavailability FOR SELECT
+TO authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Technicians can insert own unavailability" ON public.technician_unavailability;
+CREATE POLICY "Technicians can insert own unavailability"
+ON public.technician_unavailability FOR INSERT
+TO authenticated
+WITH CHECK (
+  (select auth.uid()) = technician_id
+  AND (
+    (department = 'electric' AND public.has_role((select auth.uid()), 'technician_electric'::public.app_role)) OR
+    (department = 'plumbing' AND public.has_role((select auth.uid()), 'technician_plumbing'::public.app_role)) OR
+    (department = 'general' AND public.has_role((select auth.uid()), 'technician_general'::public.app_role))
+  )
+);
+
+DROP POLICY IF EXISTS "Technicians can delete own unavailability" ON public.technician_unavailability;
+CREATE POLICY "Technicians can delete own unavailability"
+ON public.technician_unavailability FOR DELETE
+TO authenticated
+USING ((select auth.uid()) = technician_id);
+
+CREATE OR REPLACE FUNCTION public.get_unavailable_dates(dept public.repair_department)
+RETURNS TABLE (unavailable_date DATE)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  total_techs INT;
+  target_role public.app_role;
+BEGIN
+  IF dept = 'electric' THEN target_role := 'technician_electric'::public.app_role;
+  ELSIF dept = 'plumbing' THEN target_role := 'technician_plumbing'::public.app_role;
+  ELSE target_role := 'technician_general'::public.app_role;
+  END IF;
+
+  SELECT COUNT(*) INTO total_techs FROM public.user_roles WHERE role = target_role;
+
+  IF total_techs = 0 THEN
+    RETURN;
+  END IF;
+
+  RETURN QUERY
+  SELECT t.unavailable_date
+  FROM public.technician_unavailability t
+  WHERE t.department = dept
+  GROUP BY t.unavailable_date
+  HAVING COUNT(DISTINCT t.technician_id) >= total_techs;
+END;
+$$;

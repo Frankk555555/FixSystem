@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ImagePlus, X, Loader2, User, Phone } from "lucide-react";
+import { ImagePlus, X, Loader2, User, Phone, CalendarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   BUILDINGS,
@@ -24,6 +24,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { th } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -38,8 +42,25 @@ export default function NewTicketPage() {
   const [room, setRoom] = useState("");
   const [locationNote, setLocationNote] = useState("");
   const [description, setDescription] = useState("");
+  const [scheduledAt, setScheduledAt] = useState<Date | undefined>(undefined);
+  const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
+
+  // Fetch blocked dates when department changes
+  useEffect(() => {
+    async function fetchUnavailable() {
+      if (!department) {
+        setUnavailableDates([]);
+        return;
+      }
+      const { data, error } = await supabase.rpc("get_unavailable_dates", { dept: department as any });
+      if (data && !error) {
+        setUnavailableDates(data.map((d: any) => new Date(d.unavailable_date)));
+      }
+    }
+    fetchUnavailable();
+  }, [department]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -51,7 +72,7 @@ export default function NewTicketPage() {
     }
 
     if (!department) return toast.error("กรุณาเลือกแผนกช่างที่ต้องการแจ้ง");
-    if (!building) return toast.error("กรุณาเลือกอาคารสถานที่เกิดเหตุ");
+    if (!building) return toast.error("กรุณาเลือกอาคารสถานที่");
     if (description.trim().length < 5) return toast.error("กรุณาระบุรายละเอียดอาการอย่างน้อย 5 ตัวอักษร");
 
     setSubmitting(true);
@@ -74,6 +95,7 @@ export default function NewTicketPage() {
           room: room.trim() || null,
           location_note: locationNote.trim() || null,
           description: description.trim(),
+          scheduled_at: scheduledAt ? scheduledAt.toISOString() : null,
           status: "pending",
         })
         .select()
@@ -258,6 +280,36 @@ export default function NewTicketPage() {
                 placeholder="เช่น ริมหน้าต่างฝั่งทิศใต้, ใกล้ตู้กดน้ำ"
               />
             </div>
+
+            <div className="pt-2">
+              <Label className="block mb-2">วันที่สะดวกให้เข้าซ่อม (ไม่บังคับ)</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-[280px] justify-start text-left font-normal",
+                      !scheduledAt && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {scheduledAt ? format(scheduledAt, "PPP", { locale: th }) : <span>เลือกวันนัดหมาย</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={scheduledAt}
+                    onSelect={setScheduledAt}
+                    initialFocus
+                    disabled={[
+                      { before: new Date() }, // ป้องกันการเลือกวันในอดีต
+                      ...unavailableDates,    // ป้องกันการเลือกวันที่ช่างไม่ว่าง
+                    ]}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </CardContent>
         </Card>
 
@@ -286,7 +338,7 @@ export default function NewTicketPage() {
               <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/30 px-6 py-8 text-center transition hover:border-primary hover:bg-muted/50">
                 <ImagePlus className="h-8 w-8 text-muted-foreground" />
                 <span className="text-sm font-medium text-foreground">คลิกเพื่อเลือกไฟล์รูปถ่ายหรือวิดีโอ</span>
-                <span className="text-xs text-muted-foreground">รองรับ JPG, PNG, MP4 (บันทึกลง Supabase Storage)</span>
+                <span className="text-xs text-muted-foreground">รองรับ JPG, PNG, MP4</span>
                 <input
                   type="file"
                   multiple

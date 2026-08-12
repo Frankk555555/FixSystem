@@ -88,6 +88,7 @@ export type Database = {
           priority: Database["public"]["Enums"]["repair_priority"]
           reporter_id: string
           room: string | null
+          scheduled_at: string | null
           status: Database["public"]["Enums"]["repair_status"]
           ticket_code: string
           updated_at: string
@@ -103,6 +104,7 @@ export type Database = {
           priority?: Database["public"]["Enums"]["repair_priority"]
           reporter_id: string
           room?: string | null
+          scheduled_at?: string | null
           status?: Database["public"]["Enums"]["repair_status"]
           ticket_code: string
           updated_at?: string
@@ -118,6 +120,7 @@ export type Database = {
           priority?: Database["public"]["Enums"]["repair_priority"]
           reporter_id?: string
           room?: string | null
+          scheduled_at?: string | null
           status?: Database["public"]["Enums"]["repair_status"]
           ticket_code?: string
           updated_at?: string
@@ -166,6 +169,33 @@ export type Database = {
           }
         ]
       }
+      technician_unavailability: {
+        Row: {
+          created_at: string
+          department: Database["public"]["Enums"]["repair_department"]
+          id: string
+          reason: string | null
+          technician_id: string
+          unavailable_date: string
+        }
+        Insert: {
+          created_at?: string
+          department: Database["public"]["Enums"]["repair_department"]
+          id?: string
+          reason?: string | null
+          technician_id: string
+          unavailable_date: string
+        }
+        Update: {
+          created_at?: string
+          department?: Database["public"]["Enums"]["repair_department"]
+          id?: string
+          reason?: string | null
+          technician_id?: string
+          unavailable_date?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -198,6 +228,31 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      assign_user_role: {
+        Args: {
+          target_user_id: string
+          new_role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: undefined
+      }
+      get_unavailable_dates: {
+        Args: {
+          dept: Database["public"]["Enums"]["repair_department"]
+        }
+        Returns: {
+          unavailable_date: string
+        }[]
+      }
+      get_users_with_roles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          full_name: string
+          email: string
+          phone: string
+          role: Database["public"]["Enums"]["app_role"]
+        }[]
       }
     }
     Enums: {

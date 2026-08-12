@@ -223,9 +223,20 @@ export default function TicketDetailPage() {
         </div>
 
         <CardContent className="space-y-5 p-6">
+          {/* Scheduled Date */}
+          {ticket.scheduled_at && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">วันเวลานัดหมาย (Scheduled)</p>
+              <p className="mt-1 font-semibold text-foreground flex items-center gap-2 text-base bg-primary/10 text-primary w-fit px-3 py-1.5 rounded-lg border border-primary/20 shadow-sm">
+                <Calendar className="h-4 w-4" />
+                {new Date(ticket.scheduled_at).toLocaleDateString("th-TH", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </p>
+            </div>
+          )}
+
           {/* Location Details */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">สถานที่เกิดเหตุ</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">สถานที่</p>
             <p className="mt-1 font-semibold text-foreground flex items-center gap-1.5 text-base">
               <MapPin className="h-4 w-4 text-primary" />
               {ticket.building}

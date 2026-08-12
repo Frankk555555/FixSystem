@@ -16,6 +16,7 @@ import {
   Zap,
   Droplets,
   Hammer,
+  Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -123,6 +124,13 @@ export function AppHeader() {
               </Button>
             </>
           )}
+
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/calendar" className="flex items-center gap-1.5">
+              <Calendar className="h-4 w-4" />
+              <span className="hidden sm:inline">ปฏิทิน</span>
+            </Link>
+          </Button>
 
           <Button asChild variant="ghost" size="sm">
             <Link href="/profile" className="flex items-center gap-1.5">

@@ -15,6 +15,7 @@ import {
   BarChart3,
   TrendingUp,
   MapPin,
+  Users,
 } from "lucide-react";
 import {
   Bar,
@@ -140,16 +141,29 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={fetchTickets}
-          disabled={loading}
-          className="shadow-soft"
-        >
-          <RefreshCw className={`h-4 w-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
-          รีเฟรชข้อมูล
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+            className="shadow-soft"
+          >
+            <Link href="/admin/users">
+              <Users className="h-4 w-4 mr-1.5" />
+              จัดการสิทธิ์ผู้ใช้
+            </Link>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchTickets}
+            disabled={loading}
+            className="shadow-soft"
+          >
+            <RefreshCw className={`h-4 w-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
+            รีเฟรชข้อมูล
+          </Button>
+        </div>
       </div>
 
       {/* KPI Stats Cards */}
