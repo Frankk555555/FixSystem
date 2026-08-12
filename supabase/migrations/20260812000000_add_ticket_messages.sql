@@ -54,8 +54,12 @@ WITH CHECK (
 );
 
 -- Enable Realtime for ticket_messages
-BEGIN;
-  -- Remove from publication first to avoid errors if it already exists
-  ALTER PUBLICATION supabase_realtime DROP TABLE IF EXISTS public.ticket_messages;
-  ALTER PUBLICATION supabase_realtime ADD TABLE public.ticket_messages;
-COMMIT;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'ticket_messages'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.ticket_messages;
+  END IF;
+END $$;

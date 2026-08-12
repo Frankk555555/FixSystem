@@ -41,20 +41,41 @@ export function TicketChat({ ticketId }: { ticketId: string }) {
     // Fetch initial messages
     const fetchMessages = async () => {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data: messagesData, error } = await supabase
         .from("ticket_messages")
-        .select(`
-          *,
-          profiles:sender_id(full_name)
-        `)
+        .select("*")
         .eq("ticket_id", ticketId)
         .order("created_at", { ascending: true });
 
       if (error) {
         console.error("Error fetching messages:", error);
-      } else {
-        setMessages((data as unknown) as MessageWithProfile[]);
+        setLoading(false);
+        return;
       }
+
+      if (!messagesData || messagesData.length === 0) {
+        setMessages([]);
+        setLoading(false);
+        return;
+      }
+
+      // Extract unique sender IDs
+      const senderIds = Array.from(new Set(messagesData.map((m) => m.sender_id)));
+
+      // Fetch profiles for these senders
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", senderIds);
+
+      const profilesMap = new Map(profilesData?.map((p) => [p.id, p]) || []);
+
+      const combinedMessages = messagesData.map((msg) => ({
+        ...msg,
+        profiles: profilesMap.get(msg.sender_id) || { full_name: "ผู้ใช้งาน" },
+      }));
+
+      setMessages(combinedMessages as MessageWithProfile[]);
       setLoading(false);
     };
 
