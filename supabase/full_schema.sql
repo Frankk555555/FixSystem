@@ -290,8 +290,8 @@ GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticate
 
 -- 10. Storage Bucket & Policies for 'repair-media'
 INSERT INTO storage.buckets (id, name, public) 
-VALUES ('repair-media', 'repair-media', false)
-ON CONFLICT (id) DO NOTHING;
+VALUES ('repair-media', 'repair-media', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
 
 DROP POLICY IF EXISTS "Users upload own repair media" ON storage.objects;
 CREATE POLICY "Users upload own repair media" 

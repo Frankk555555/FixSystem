@@ -83,14 +83,12 @@ export async function getTicketAction(id: string) {
     .eq("ticket_id", id)
     .order("created_at", { ascending: true });
 
-  const signedMedia = await Promise.all(
-    (media ?? []).map(async (m) => {
-      const { data: signed } = await supabaseAdmin.storage
-        .from("repair-media")
-        .createSignedUrl(m.file_path, 60 * 60);
-      return { ...m, url: signed?.signedUrl ?? null };
-    }),
-  );
+  const signedMedia = (media ?? []).map((m) => {
+    const { data: pub } = supabaseAdmin.storage
+      .from("repair-media")
+      .getPublicUrl(m.file_path);
+    return { ...m, url: pub.publicUrl };
+  });
 
   return { ticket, media: signedMedia };
 }

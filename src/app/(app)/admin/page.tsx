@@ -136,7 +136,7 @@ export default function AdminPage() {
           <div>
             <h1 className="font-display text-3xl font-bold tracking-tight">หน้าผู้ดูแลระบบ (Admin)</h1>
             <p className="text-sm font-medium text-muted-foreground mt-1">
-              รายงานสถิติและภาพรวมการแจ้งซ่อมทั่วทั้งมหาวิทยาลัย (Supabase Realtime)
+              รายงานสถิติและภาพรวมการแจ้งซ่อมทั่วทั้งมหาวิทยาลัย
             </p>
           </div>
         </div>
