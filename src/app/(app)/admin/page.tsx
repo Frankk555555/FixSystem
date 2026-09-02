@@ -357,10 +357,10 @@ export default function AdminPage() {
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
             <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[140px] h-9 bg-background shadow-xs">
-                <Calendar className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+              <SelectTrigger className="w-[130px] sm:w-[140px] h-9 bg-background shadow-xs text-xs sm:text-sm">
+                <Calendar className="h-3.5 w-3.5 mr-1.5 text-muted-foreground shrink-0" />
                 <SelectValue placeholder="ช่วงเวลา" />
               </SelectTrigger>
               <SelectContent>
@@ -376,9 +376,9 @@ export default function AdminPage() {
               size="sm"
               onClick={exportToCSV}
               disabled={loading || tickets.length === 0}
-              className="h-9 gap-1.5 shadow-xs"
+              className="h-9 px-3 text-xs sm:text-sm gap-1.5 shadow-xs"
             >
-              <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
+              <FileSpreadsheet className="h-4 w-4 text-emerald-600 shrink-0" />
               <span className="hidden sm:inline">ส่งออก</span> CSV
             </Button>
 
@@ -386,10 +386,10 @@ export default function AdminPage() {
               variant="outline"
               size="sm"
               asChild
-              className="h-9 gap-1.5 shadow-xs"
+              className="h-9 px-3 text-xs sm:text-sm gap-1.5 shadow-xs"
             >
               <Link href="/admin/users">
-                <Users className="h-4 w-4 text-primary" />
+                <Users className="h-4 w-4 text-primary shrink-0" />
                 <span>จัดการสิทธิ์</span>
               </Link>
             </Button>
@@ -399,9 +399,9 @@ export default function AdminPage() {
               size="sm"
               onClick={fetchTickets}
               disabled={loading}
-              className="h-9 gap-1.5 shadow-soft"
+              className="h-9 px-3 text-xs sm:text-sm gap-1.5 shadow-soft"
             >
-              <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+              <RefreshCw className={cn("h-4 w-4 shrink-0", loading && "animate-spin")} />
               <span>รีเฟรช</span>
             </Button>
           </div>
@@ -409,9 +409,9 @@ export default function AdminPage() {
       </div>
 
       {/* KPI Metric Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         <KPICard
-          icon={<ClipboardList className="h-5 w-5" />}
+          icon={<ClipboardList className="h-4 w-4 sm:h-5 sm:w-5" />}
           label="ใบแจ้งซ่อมทั้งหมด"
           value={total}
           subtext="งานแจ้งซ่อมในระบบ"
@@ -419,7 +419,7 @@ export default function AdminPage() {
           loading={loading}
         />
         <KPICard
-          icon={<Clock className="h-5 w-5" />}
+          icon={<Clock className="h-4 w-4 sm:h-5 sm:w-5" />}
           label="รอดำเนินการ"
           value={pending}
           subtext="รอรับเรื่อง & มอบหมาย"
@@ -427,7 +427,7 @@ export default function AdminPage() {
           loading={loading}
         />
         <KPICard
-          icon={<Wrench className="h-5 w-5" />}
+          icon={<Wrench className="h-4 w-4 sm:h-5 sm:w-5" />}
           label="กำลังดำเนินการ"
           value={inProgress}
           subtext="ช่างกำลังเข้าตรวจสอบ"
@@ -435,7 +435,7 @@ export default function AdminPage() {
           loading={loading}
         />
         <KPICard
-          icon={<CheckCircle2 className="h-5 w-5" />}
+          icon={<CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />}
           label="เสร็จสิ้นแล้ว"
           value={completed}
           subtext={`คิดเป็น ${completionRate}% ของทั้งหมด`}
@@ -444,42 +444,57 @@ export default function AdminPage() {
           loading={loading}
         />
         <KPICard
-          icon={<AlertTriangle className="h-5 w-5" />}
+          icon={<AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />}
           label="งานด่วน / ด่วนที่สุด"
           value={urgentCount}
           subtext="ระดับความสำคัญสูง"
           tone="destructive"
           loading={loading}
+          className="col-span-2 md:col-span-1"
         />
       </div>
 
       {/* Shadcn UI Tabs Navigation */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-2">
-          <TabsList className="h-11 bg-muted/60 p-1 rounded-xl">
-            <TabsTrigger value="overview" className="rounded-lg gap-2 px-4 py-2 text-sm font-medium">
-              <BarChart3 className="h-4 w-4" />
-              <span>ภาพรวมสถิติ</span>
-            </TabsTrigger>
-            <TabsTrigger value="tickets" className="rounded-lg gap-2 px-4 py-2 text-sm font-medium">
-              <Layers className="h-4 w-4" />
-              <span>รายการแจ้งซ่อม</span>
-              <Badge variant="secondary" className="ml-1 text-xs px-1.5 py-0 h-5">
-                {filteredTickets.length}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger value="departments" className="rounded-lg gap-2 px-4 py-2 text-sm font-medium">
-              <Activity className="h-4 w-4" />
-              <span>สถิติรายแผนก</span>
-            </TabsTrigger>
-            <TabsTrigger value="locations" className="rounded-lg gap-2 px-4 py-2 text-sm font-medium">
-              <Building2 className="h-4 w-4" />
-              <span>วิเคราะห์สถานที่</span>
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b pb-3">
+          <div className="w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+            <TabsList className="inline-flex h-11 w-max min-w-full sm:min-w-0 sm:w-auto items-center justify-start sm:justify-center rounded-xl bg-muted/60 p-1 gap-1 border border-border/40 shadow-xs">
+              <TabsTrigger
+                value="overview"
+                className="rounded-lg gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium shrink-0 whitespace-nowrap"
+              >
+                <BarChart3 className="h-4 w-4 shrink-0" />
+                <span>ภาพรวมสถิติ</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="tickets"
+                className="rounded-lg gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium shrink-0 whitespace-nowrap"
+              >
+                <Layers className="h-4 w-4 shrink-0" />
+                <span>รายการแจ้งซ่อม</span>
+                <Badge variant="secondary" className="ml-1 text-[11px] sm:text-xs px-1.5 py-0 h-4.5 sm:h-5">
+                  {filteredTickets.length}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger
+                value="departments"
+                className="rounded-lg gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium shrink-0 whitespace-nowrap"
+              >
+                <Activity className="h-4 w-4 shrink-0" />
+                <span>สถิติรายแผนก</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="locations"
+                className="rounded-lg gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium shrink-0 whitespace-nowrap"
+              >
+                <Building2 className="h-4 w-4 shrink-0" />
+                <span>วิเคราะห์สถานที่</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {activeTab === "tickets" && (
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-muted-foreground shrink-0 sm:text-right">
               แสดง {filteredTickets.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} -{" "}
               {Math.min(currentPage * pageSize, filteredTickets.length)} จาก {filteredTickets.length} รายการ
             </div>
@@ -761,20 +776,20 @@ export default function AdminPage() {
         {/* TAB 2: TICKETS TABLE */}
         <TabsContent value="tickets" className="space-y-4">
           <Card className="shadow-soft">
-            <CardHeader className="pb-4 bg-muted/20 border-b">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <CardHeader className="p-4 sm:p-6 pb-4 bg-muted/20 border-b">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
-                  <CardTitle className="font-display text-xl flex items-center gap-2">
-                    <ClipboardList className="h-5 w-5 text-primary" />
+                  <CardTitle className="font-display text-lg sm:text-xl flex items-center gap-2">
+                    <ClipboardList className="h-5 w-5 text-primary shrink-0" />
                     ตารางรายการแจ้งซ่อมทั้งหมด
                   </CardTitle>
-                  <CardDescription className="text-xs sm:text-sm">
+                  <CardDescription className="text-xs sm:text-sm mt-0.5">
                     ค้นหา ตรวจสอบรายละเอียด และติดตามความคืบหน้ารายใบงาน
                   </CardDescription>
                 </div>
 
                 {/* Search Bar */}
-                <div className="relative w-full md:w-80">
+                <div className="relative w-full lg:w-80">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="ค้นหารหัส, อาคาร, ห้อง, รายละเอียด..."
@@ -783,7 +798,7 @@ export default function AdminPage() {
                       setSearchQuery(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className="pl-9 bg-background shadow-xs h-9"
+                    className="pl-9 bg-background shadow-xs h-9 text-xs sm:text-sm"
                   />
                   {searchQuery && (
                     <button
@@ -797,8 +812,8 @@ export default function AdminPage() {
               </div>
 
               {/* Filters Bar */}
-              <div className="flex flex-wrap items-center gap-2.5 pt-3 mt-3 border-t border-border/60">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium mr-1">
+              <div className="flex flex-wrap items-center gap-2 pt-3 mt-3 border-t border-border/60">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium mr-1 shrink-0">
                   <SlidersHorizontal className="h-3.5 w-3.5" />
                   <span>ตัวกรอง:</span>
                 </div>
@@ -811,7 +826,7 @@ export default function AdminPage() {
                     setCurrentPage(1);
                   }}
                 >
-                  <SelectTrigger className="w-[130px] h-8 text-xs bg-background">
+                  <SelectTrigger className="w-full xs:w-[135px] sm:w-[135px] h-8 text-xs bg-background">
                     <SelectValue placeholder="แผนกช่าง" />
                   </SelectTrigger>
                   <SelectContent>
@@ -832,7 +847,7 @@ export default function AdminPage() {
                     setCurrentPage(1);
                   }}
                 >
-                  <SelectTrigger className="w-[140px] h-8 text-xs bg-background">
+                  <SelectTrigger className="w-full xs:w-[140px] sm:w-[140px] h-8 text-xs bg-background">
                     <SelectValue placeholder="สถานะงาน" />
                   </SelectTrigger>
                   <SelectContent>
@@ -853,7 +868,7 @@ export default function AdminPage() {
                     setCurrentPage(1);
                   }}
                 >
-                  <SelectTrigger className="w-[130px] h-8 text-xs bg-background">
+                  <SelectTrigger className="w-full xs:w-[130px] sm:w-[130px] h-8 text-xs bg-background">
                     <SelectValue placeholder="ความเร่งด่วน" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1038,21 +1053,21 @@ export default function AdminPage() {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <CardFooter className="flex items-center justify-between border-t py-4 px-6">
+              <CardFooter className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t py-4 px-4 sm:px-6">
                 <div className="text-xs text-muted-foreground">
-                  หน้า {currentPage} จาก {totalPages}
+                  หน้า <span className="font-semibold text-foreground">{currentPage}</span> จาก {totalPages}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
-                    className="h-8 px-3 text-xs"
+                    className="h-8 px-2.5 sm:px-3 text-xs"
                   >
                     ก่อนหน้า
                   </Button>
-                  <div className="flex items-center gap-1">
+                  <div className="hidden sm:flex items-center gap-1">
                     {Array.from({ length: totalPages }).map((_, i) => (
                       <Button
                         key={i}
@@ -1070,7 +1085,7 @@ export default function AdminPage() {
                     size="sm"
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
-                    className="h-8 px-3 text-xs"
+                    className="h-8 px-2.5 sm:px-3 text-xs"
                   >
                     ถัดไป
                   </Button>
@@ -1082,7 +1097,7 @@ export default function AdminPage() {
 
         {/* TAB 3: DEPARTMENT ANALYTICS */}
         <TabsContent value="departments" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {DEPARTMENTS.map((d) => {
               const deptTickets = tickets.filter((t) => t.department === d.value);
               const deptCompleted = deptTickets.filter((t) => t.status === "completed").length;
@@ -1259,6 +1274,7 @@ function KPICard({
   tone,
   progress,
   loading,
+  className,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -1267,6 +1283,7 @@ function KPICard({
   tone: "primary" | "warning" | "accent" | "success" | "destructive";
   progress?: number;
   loading?: boolean;
+  className?: string;
 }) {
   const toneMap = {
     primary: "bg-primary/10 text-primary border-primary/20",
@@ -1277,24 +1294,24 @@ function KPICard({
   };
 
   return (
-    <Card className="shadow-soft hover:shadow-elegant transition-all duration-300 hover:-translate-y-0.5 overflow-hidden">
-      <CardContent className="p-5 flex flex-col justify-between h-full space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-muted-foreground">{label}</span>
-          <div className={cn("grid h-9 w-9 place-items-center rounded-xl border", toneMap[tone])}>
+    <Card className={cn("shadow-soft hover:shadow-elegant transition-all duration-300 hover:-translate-y-0.5 overflow-hidden", className)}>
+      <CardContent className="p-4 sm:p-5 flex flex-col justify-between h-full space-y-2.5 sm:space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground truncate">{label}</span>
+          <div className={cn("grid h-7 w-7 sm:h-9 sm:w-9 shrink-0 place-items-center rounded-lg sm:rounded-xl border", toneMap[tone])}>
             {icon}
           </div>
         </div>
 
         {loading ? (
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-16" />
-            <Skeleton className="h-3 w-28" />
+          <div className="space-y-1.5 sm:space-y-2">
+            <Skeleton className="h-7 sm:h-8 w-14 sm:w-16" />
+            <Skeleton className="h-3 w-24 sm:w-28" />
           </div>
         ) : (
           <div>
-            <p className="font-display text-3xl font-bold tracking-tight text-foreground">{value}</p>
-            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{subtext}</p>
+            <p className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{value}</p>
+            <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 line-clamp-1">{subtext}</p>
           </div>
         )}
 
